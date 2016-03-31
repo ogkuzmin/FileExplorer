@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#9f3f3f</color>
+    <color name="hilited_task_color">#b0bec5</color>
+    <color name="textColor">@color/primary_text_default_material_light</color>
+    <color name="text_color_secondary">@color/secondary_text_default_material_light</color>
+    <color name="toolbar">#E67093A3</color>
+    <color name="background">@color/card_background</color>
+    <color name="card_background">#eeeeee</color>
+</resources>
