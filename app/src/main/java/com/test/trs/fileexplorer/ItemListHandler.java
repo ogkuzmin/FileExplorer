@@ -56,12 +56,6 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
             fileTypesList.add(ext);
     }
 
-    public void registerObserver(Observer observer){
-        addObserver(observer);
-    }
-
-
-
     public void fillData(){
 
         dirList.clear();
@@ -97,6 +91,12 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
         }
     }
 
+    public void setOnBackPressedListener(ItemRow.OnBackPressedListener onBackPressedListener){
+
+        for (ItemRow row: rowList)
+            row.setOnBackPressedListener(onBackPressedListener);
+    }
+
 
     private void fillRootDirRowList(){
 
@@ -106,9 +106,7 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
             dirList.add(context.getFilesDir());
 
             try {
-                String extStorageState = Environment.getExternalStorageState();
-
-                if (extStorageState.equalsIgnoreCase(Environment.MEDIA_MOUNTED) || extStorageState.equalsIgnoreCase(Environment.MEDIA_MOUNTED_READ_ONLY))
+                if (ExplorerFragment.isExtStorageReadable())
                     dirList.add(new File(Environment.getExternalStorageDirectory().getAbsolutePath()));
 
             } catch (Exception e) {
@@ -171,7 +169,7 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
         for (String registerExt: fileTypesList){
             String ext = ExplorerFragment.getFileExtension(file);
 
-            result = (ext.equalsIgnoreCase(registerExt));
+            result |= (ext.equalsIgnoreCase(registerExt));
         }
 
         return result;
@@ -180,9 +178,9 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
     @Override
     public void onItemRowClick(File file) {
 
-        Log.i(TAG, "Starting onItemRowClick() with file.getName() is " + file.getName());
-
+        if (file.isDirectory())
         updateData(file);
+
         setChanged();
         notifyObservers(file);
     }

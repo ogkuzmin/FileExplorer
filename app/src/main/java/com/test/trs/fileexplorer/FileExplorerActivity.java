@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -58,7 +60,7 @@ public class FileExplorerActivity extends AppCompatActivity implements ExplorerF
 
 
     @Override
-    public void onEventInFileExplorer(File file) {
+    public void onEventInFileExplorer(@Nullable File file) {
 
         if (file == null)
             toolbar.setTitle(explorerFragment.getToolbarTitle());
@@ -73,7 +75,8 @@ public class FileExplorerActivity extends AppCompatActivity implements ExplorerF
 
     public void showConfirmDialog(File file){
 
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
 
     }
 

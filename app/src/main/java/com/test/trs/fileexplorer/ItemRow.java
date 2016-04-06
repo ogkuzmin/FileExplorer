@@ -50,14 +50,12 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
     private TextView title;
     private TextView subTitle;
     private OnItemRowClickListener headListener;
+    private OnBackPressedListener  onBackPressedListener;
 
-    /*private final View.OnClickListener itemListener = new View.OnClickListener() {
-        @Override
-        public void onClick(final View view) {
+    public interface OnBackPressedListener{
 
-            Log.i(TAG, "invoke onClick()");
-        }
-    };*/
+        public void onBackPressed();
+    }
 
     public interface OnItemRowClickListener {
 
@@ -86,6 +84,8 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
         container = (RelativeLayout) findViewById(R.id.container_item_row);
         container.setOnClickListener(this);
+        container.setBackgroundResource(R.drawable.list_item_background);
+
         icon = (ImageView) findViewById(R.id.item_icon);
         title = (TextView) findViewById(R.id.title_item);
         subTitle = (TextView) findViewById(R.id.subtitle_item);
@@ -138,7 +138,6 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
             case DIRECTORY_CODE: {
 
-
                 if (!isParentDir()){
 
                     titleText = itemFile.getName();
@@ -160,8 +159,8 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
             case REGISTERED_FILE_CODE: {
                 title.setText(itemFile.getName());
                 String ext = ExplorerFragment.getFileExtension(itemFile);
-                String subTitleText = (REGISTERED_FILE_STRING + " " + ext +
-                        ", " + (itemFile.getTotalSpace() / 1024.0) + " kB, last modified " + new Date(itemFile.lastModified()));
+                String subTitleText = (ExplorerFragment.getStringSizeFileFromLong(itemFile.length()) +
+                        ", изменен " + ExplorerFragment.getStringTimeFromLong(itemFile.lastModified()));
                 subTitle.setText(subTitleText);
             }
             break;
@@ -230,8 +229,7 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
     public void setParentBoolean() {
 
-        if (isDir)
-            isParent = true;
+        isParent = true;
     }
 
     public boolean isParentDir() {
@@ -243,11 +241,19 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
         headListener = listener;
     }
 
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
+
+        this.onBackPressedListener = onBackPressedListener;
+    }
 
     @Override
     public void onClick(View v) {
 
-        Log.i(TAG, "onClick():  with itemFile.getName() = " + itemFile.getName());
+        if (isParentDir()) {
+
+            onBackPressedListener.onBackPressed();
+            return;
+        }
 
         switch (itemCode) {
 
@@ -260,8 +266,9 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
                 break;
 
             case EXTERNAL_STORAGE_CODE:
+                if(ExplorerFragment.isExtStorageReadable())
                 headListener.onItemRowClick(Environment.getExternalStorageDirectory());
-                //TODO check if external storage is ready to read;
+
                 break;
 
             case DIRECTORY_CODE:

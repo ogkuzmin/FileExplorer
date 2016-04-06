@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TimeZone;
 
 /**
  * Created by kuzmin_og on 25.03.2016.
  */
-public class ExplorerFragment extends Fragment implements Observer {
+public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBackPressedListener {
 
     private static final String TAG = "ExplorerFragment";
 
@@ -59,13 +62,13 @@ public class ExplorerFragment extends Fragment implements Observer {
     public void fillDataAndAddViews(ViewGroup container){
 
         itemListHandler.registerExtension(ItemRow.MAP_EXT);
+        itemListHandler.registerExtension("apk");
+        itemListHandler.registerExtension("txt");
         itemListHandler.setCurrentDir(currentDir);
-        //itemListHandler.registerObserver(ExplorerFragment.this);
         itemListHandler.addObserver(this);
         itemListHandler.fillData();
+        itemListHandler.setOnBackPressedListener(ExplorerFragment.this);
         itemListHandler.addViewsToContainer(container);
-
-
     }
 
     public void updateData(@Nullable File file){
@@ -93,28 +96,20 @@ public class ExplorerFragment extends Fragment implements Observer {
 
     public String getToolbarTitle(){
 
-        if (currentDir != null)
-            return currentDir.getName();
-        else
+        if (currentDir == null)
             return "Выберите каталог";
+        else if (currentDir.getAbsolutePath().equalsIgnoreCase(getContext().getFilesDir().getAbsolutePath()))
+            return ItemRow.INTERNAL_STORAGE_STRING;
+        else if (currentDir.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()))
+            return ItemRow.EXTERNAL_STORAGE_STRING;
+        else
+            return currentDir.getName();
+
     }
 
     public void registerFileExplorerListener(FileExplorerListener activityListener){
 
         this.activityListener = activityListener;
-    }
-    public static String getFileExtension(File file){
-
-        String ext = "";
-
-        if (file.isFile()) {
-            String fileName = file.getName();
-
-            if (fileName.lastIndexOf(".") > 0)
-                ext = fileName.substring(fileName.lastIndexOf(".") + 1);
-        }
-
-        return ext;
     }
 
     public void onBackPressed() {
@@ -140,5 +135,61 @@ public class ExplorerFragment extends Fragment implements Observer {
         }
 
     }
+
+    public static String getFileExtension(File file){
+
+        String ext = "";
+
+        if (file.isFile()) {
+            String fileName = file.getName();
+
+            if (fileName.lastIndexOf(".") > 0)
+                ext = fileName.substring(fileName.lastIndexOf(".") + 1);
+        }
+
+        return ext;
+    }
+
+    public static boolean isExtStorageReadable(){
+
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static final String getStringTimeFromLong(final long timeInMillis){
+
+        final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
+        final Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(timeInMillis);
+        c.setTimeZone(TimeZone.getDefault());
+        return format.format(c.getTime());
+    }
+
+    public static final String getStringSizeFileFromLong(final long fileSize){
+
+        double sizeInMB = (double)fileSize/(1024*1024);
+        double sizeInKB = (double)fileSize/1024;
+
+        if (sizeInMB >= 1)
+            return roundDoubleToDecimal(sizeInMB) + " MB";
+        else if(sizeInKB >= 1)
+            return roundDoubleToDecimal(sizeInKB)  + " KB";
+        else
+            return fileSize + " B";
+    }
+
+    private static double roundDoubleToDecimal(double d){
+
+        d = d * 10;
+        int i = (int)Math.round(d);
+        d = (double)i/10;
+
+        return d;
+    }
+
 
 }
