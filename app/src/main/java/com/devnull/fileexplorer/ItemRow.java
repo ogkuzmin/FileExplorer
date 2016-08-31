@@ -1,4 +1,4 @@
-package com.test.trs.fileexplorer;
+package com.devnull.fileexplorer;
 
 import android.content.Context;
 import android.os.Environment;
@@ -11,46 +11,40 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.Date;
 
 /**
- * Created by kuzmin_og on 29.03.2016.
+ * Created by devnull on 29.03.2016.
  */
 public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
     private static final String TAG = "ItemRow";
 
-    public static final String MAP_EXT = "map";
-
-    public static final int INTERNAL_STORAGE_CODE = 5;
-    public static final String INTERNAL_STORAGE_STRING = "Внутреннее хранилище";
-
     public static final int EXTERNAL_STORAGE_CODE = 4;
-    public static final String EXTERNAL_STORAGE_STRING = "Внешнее хранилище";
+    public static final int EXTERNAL_STORAGE_STRING_CODE = R.string.ext_storage;
 
     public static final int ROOT_DIRECTORY_CODE = 3;
-    public static final String ROOT_DIRECTORY_STRING = "Корневой каталог";
+    public static final int ROOT_DIRECTORY_STRING_CODE = R.string.root_directory;
 
     public static final int DIRECTORY_CODE = 2;
-    public static final String DIRECTORY_STRING = "Директория";
+    public static final int DIRECTORY_STRING_CODE = R.string.directory;
 
-    public static final int REGISTERED_FILE_CODE = 1;
-    public static final String REGISTERED_FILE_STRING = "Файл";
+    public static final int FILE_CODE = 1;
+    public static final int FILE_STRING_CODE = R.string.file;
 
     private static final int NO_SUCH_ICON = -1;
 
-    private RelativeLayout container;
-    private File itemFile;
-    private Context context;
-    private int itemCode;
-    private boolean isParent = false;
-    private boolean isDir;
-    private boolean isReadable;
-    private ImageView icon;
-    private TextView title;
-    private TextView subTitle;
-    private OnItemRowClickListener headListener;
-    private OnBackPressedListener  onBackPressedListener;
+    private RelativeLayout          container;
+    private File                    itemFile;
+    private Context                 context;
+    private int                     itemCode;
+    private boolean                 isParent = false;
+    private boolean                 isDir;
+    private boolean                 isReadable;
+    private ImageView               icon;
+    private TextView                title;
+    private TextView                subTitle;
+    private OnItemRowClickListener  headListener;
+    private OnBackPressedListener   onBackPressedListener;
 
     public interface OnBackPressedListener{
 
@@ -90,9 +84,7 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
         title = (TextView) findViewById(R.id.title_item);
         subTitle = (TextView) findViewById(R.id.subtitle_item);
 
-
         setUpViews();
-
     }
 
     private void determineItemCode() {
@@ -105,14 +97,12 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
         if (isDir) {
             if (itemFile.getAbsolutePath().equalsIgnoreCase("/"))
                 itemCode = ROOT_DIRECTORY_CODE;
-            else if (itemFile.getAbsolutePath().equalsIgnoreCase(context.getFilesDir().getAbsolutePath()))
-                itemCode = INTERNAL_STORAGE_CODE;
             else if (itemFile.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()))
                 itemCode = EXTERNAL_STORAGE_CODE;
             else
                 itemCode = DIRECTORY_CODE;
         } else
-            itemCode = REGISTERED_FILE_CODE;
+            itemCode = FILE_CODE;
 
         Log.i(TAG, "determineItemCode(): itemCode = " + itemCode);
     }
@@ -152,11 +142,11 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
                 }
 
 
-                subTitle.setText(DIRECTORY_STRING);
+                subTitle.setText(DIRECTORY_STRING_CODE);
             }
             break;
 
-            case REGISTERED_FILE_CODE: {
+            case FILE_CODE: {
                 title.setText(itemFile.getName());
                 String ext = ExplorerFragment.getFileExtension(itemFile);
                 String subTitleText = (ExplorerFragment.getStringSizeFileFromLong(itemFile.length()) +
@@ -169,21 +159,13 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
                 if(!isParentDir())
                 title.setText("/");
 
-                subTitle.setText(ROOT_DIRECTORY_STRING);
-            }
-            break;
-
-            case INTERNAL_STORAGE_CODE: {
-                if(!isParentDir())
-                title.setText(INTERNAL_STORAGE_STRING);
-
-                subTitle.setVisibility(INVISIBLE);
+                subTitle.setText(ROOT_DIRECTORY_STRING_CODE);
             }
             break;
 
             case EXTERNAL_STORAGE_CODE: {
                 if (!isParentDir())
-                title.setText(EXTERNAL_STORAGE_STRING);
+                title.setText(EXTERNAL_STORAGE_STRING_CODE);
 
                 subTitle.setVisibility(INVISIBLE);
             }
@@ -201,10 +183,9 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
             return R.drawable.ic_folder_black_48dp;
 
         switch (itemCode) {
-            case REGISTERED_FILE_CODE:
+            case FILE_CODE:
                 extension = ExplorerFragment.getFileExtension(itemFile);
-                if (extension.equalsIgnoreCase(MAP_EXT))
-                    resId = R.drawable.ic_public_black_48dp;
+                resId = generateIconResource();
                 break;
 
             case DIRECTORY_CODE:
@@ -213,10 +194,6 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
             case EXTERNAL_STORAGE_CODE:
                 resId = R.drawable.ic_sd_storage_black_48dp;
-                break;
-
-            case INTERNAL_STORAGE_CODE:
-                resId = R.drawable.ic_storage_black_48dp;
                 break;
 
             case ROOT_DIRECTORY_CODE:
@@ -261,10 +238,6 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
                 headListener.onItemRowClick(new File("/"));
                 break;
 
-            case INTERNAL_STORAGE_CODE:
-                headListener.onItemRowClick(context.getFilesDir());
-                break;
-
             case EXTERNAL_STORAGE_CODE:
                 if(ExplorerFragment.isExtStorageReadable())
                 headListener.onItemRowClick(Environment.getExternalStorageDirectory());
@@ -278,12 +251,16 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
                 break;
 
-            case REGISTERED_FILE_CODE:
+            case FILE_CODE:
                 headListener.onItemRowClick(itemFile);
                 break;
 
         }
 
+    }
+
+    public static int generateIconResource() {
+        return 1;
     }
 }
 

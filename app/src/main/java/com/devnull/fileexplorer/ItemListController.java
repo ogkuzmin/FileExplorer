@@ -1,4 +1,4 @@
-package com.test.trs.fileexplorer;
+package com.devnull.fileexplorer;
 
 
 import android.content.Context;
@@ -14,11 +14,11 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Created by kuzmin_og on 25.03.2016.
+ * Created by devnull on 25.03.2016.
  */
-public class ItemListHandler extends Observable implements ItemRow.OnItemRowClickListener {
+public class ItemListController extends Observable implements ItemRow.OnItemRowClickListener {
 
-    private static final String TAG = "ItemListHandler";
+    private static final String TAG = "ItemListController";
 
     private File            currentDir;
     private List<ItemRow>   rowList;
@@ -30,11 +30,10 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
 
 
 
-    public ItemListHandler(Context context){
+    public ItemListController(Context context){
 
         this.context = context;
         rowList = new ArrayList<ItemRow>();
-        fileTypesList = new ArrayList<String>();
         dirList = new ArrayList<File>();
         fileList = new ArrayList<File>();
 
@@ -42,18 +41,6 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
 
     public void setCurrentDir(@Nullable File file){
         this.currentDir = file;
-    }
-
-    public void registerExtension(String ext){
-
-        boolean alreadyRegistered = false;
-
-        for (String regExt: fileTypesList){
-            alreadyRegistered |= regExt.equalsIgnoreCase(ext);
-        }
-
-        if (!alreadyRegistered)
-            fileTypesList.add(ext);
     }
 
     public void fillData(){
@@ -81,9 +68,7 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
                 if (file.isDirectory())
                     dirList.add(file);
                 else {
-                    if (isNeededFile(file))
-                        fileList.add(file);
-
+                    fileList.add(file);
                 }
             }
 
@@ -159,20 +144,6 @@ public class ItemListHandler extends Observable implements ItemRow.OnItemRowClic
 
         for (ItemRow row: rowList)
             container.addView(row);
-    }
-
-
-    private boolean isNeededFile(File file){
-
-        boolean result = false;
-
-        for (String registerExt: fileTypesList){
-            String ext = ExplorerFragment.getFileExtension(file);
-
-            result |= (ext.equalsIgnoreCase(registerExt));
-        }
-
-        return result;
     }
 
     @Override
