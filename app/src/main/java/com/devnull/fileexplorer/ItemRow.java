@@ -1,6 +1,13 @@
 package com.devnull.fileexplorer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -15,7 +22,9 @@ import java.io.File;
 /**
  * Created by devnull on 29.03.2016.
  */
-public class ItemRow extends RelativeLayout implements View.OnClickListener {
+public class ItemRow extends RelativeLayout implements
+        View.OnClickListener,
+        View.OnLongClickListener {
 
     private static final String TAG = "ItemRow";
 
@@ -111,9 +120,13 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
         int iconResId = getIconResourceId();
 
-        if (iconResId != NO_SUCH_ICON) {
+        if (iconResId != NO_SUCH_ICON && iconResId != FILE_CODE) {
             icon.setImageResource(iconResId);
-            icon.setImageAlpha(40);
+            icon.setImageAlpha(60);
+            icon.setColorFilter(new ColorDrawable(getResources().getColor(R.color.toolbar)).getColor());
+        } else if (iconResId == FILE_CODE) {
+            String extension = CommonUtils.getFileExtension(itemFile);
+            icon.setImageBitmap(generateIconBitmap(extension));
         }
 
         String titleText;
@@ -127,30 +140,26 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
         switch (itemCode) {
 
             case DIRECTORY_CODE: {
-
-                if (!isParentDir()){
-
+                if (!isParentDir()) {
                     titleText = itemFile.getName();
                     title.setText(titleText);
-
                     if (!isReadable) {
-
                         icon.setImageAlpha(20);
-                        title.setTextColor(getResources().getColor(R.color.hilited_task_color));
-                        subTitle.setTextColor(getResources().getColor(R.color.hilited_task_color));
+                        title.setTextColor(getResources().getColor(R.color.no_active_item));
+                        subTitle.setTextColor(getResources().getColor(R.color.no_active_item));
                     }
                 }
-
-
                 subTitle.setText(DIRECTORY_STRING_CODE);
             }
             break;
 
             case FILE_CODE: {
                 title.setText(itemFile.getName());
-                String ext = ExplorerFragment.getFileExtension(itemFile);
-                String subTitleText = (ExplorerFragment.getStringSizeFileFromLong(itemFile.length()) +
-                        ", изменен " + ExplorerFragment.getStringTimeFromLong(itemFile.lastModified()));
+                long lastModified = CommonUtils.getRealLastModified(itemFile);
+                String subTitleText = CommonUtils.getStringSizeFileFromLong(itemFile.length());
+                if (lastModified > 0)
+                    subTitleText += ", " + getResources().getString(R.string.last_modified)
+                            + " " + CommonUtils.getStringTimeFromLong(itemFile.lastModified());
                 subTitle.setText(subTitleText);
             }
             break;
@@ -158,7 +167,6 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
             case ROOT_DIRECTORY_CODE: {
                 if(!isParentDir())
                 title.setText("/");
-
                 subTitle.setText(ROOT_DIRECTORY_STRING_CODE);
             }
             break;
@@ -166,7 +174,6 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
             case EXTERNAL_STORAGE_CODE: {
                 if (!isParentDir())
                 title.setText(EXTERNAL_STORAGE_STRING_CODE);
-
                 subTitle.setVisibility(INVISIBLE);
             }
             break;
@@ -184,8 +191,7 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
         switch (itemCode) {
             case FILE_CODE:
-                extension = ExplorerFragment.getFileExtension(itemFile);
-                resId = generateIconResource();
+                resId = FILE_CODE;
                 break;
 
             case DIRECTORY_CODE:
@@ -239,7 +245,7 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
                 break;
 
             case EXTERNAL_STORAGE_CODE:
-                if(ExplorerFragment.isExtStorageReadable())
+                if(CommonUtils.isExtStorageReadable())
                 headListener.onItemRowClick(Environment.getExternalStorageDirectory());
 
                 break;
@@ -259,8 +265,43 @@ public class ItemRow extends RelativeLayout implements View.OnClickListener {
 
     }
 
-    public static int generateIconResource() {
-        return 1;
+    public Bitmap generateIconBitmap(String extension) {
+
+        if (extension.length() > 3 || extension.equalsIgnoreCase(""))
+            extension = "?";
+
+        int startX = icon.getLeft();
+        int startY = icon.getTop();
+        float outerWidth = getResources().getDimension(R.dimen.icon_item_size);
+        float strokeWidth = outerWidth/8;
+        float innerWidth = outerWidth - (2*strokeWidth);
+        float textSize = getResources().getDimension(R.dimen.icon_text_size);
+
+        Bitmap icon = Bitmap.createBitmap((int)outerWidth, (int)outerWidth, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(icon);
+        Paint outerRectPaint = new Paint(), innerRectPaint = new Paint(), textPaint = new Paint();
+        outerRectPaint.setColor(getResources().getColor(R.color.icon_text_color));
+        innerRectPaint.setColor(getResources().getColor(R.color.background));
+        textPaint.setColor(getResources().getColor(R.color.icon_text_color));
+        outerRectPaint.setStyle(Paint.Style.FILL);
+        innerRectPaint.setStyle(Paint.Style.FILL);
+        outerRectPaint.setStrokeWidth(strokeWidth);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTextSize(textSize);
+        textPaint.setAntiAlias(true);
+        textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        canvas.drawRect(startX, startY, startX + outerWidth, startY + outerWidth, outerRectPaint);
+        canvas.drawRect(startX + strokeWidth, startY + strokeWidth,
+                startX + strokeWidth + innerWidth, startY + strokeWidth + innerWidth, innerRectPaint);
+        canvas.drawText(extension,startX + outerWidth/2, startY + 5*outerWidth/12 + textSize/2, textPaint);
+
+        return icon;
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        return false;
     }
 }
 

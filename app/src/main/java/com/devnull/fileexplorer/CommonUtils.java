@@ -5,6 +5,8 @@ import android.os.Environment;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -27,7 +29,6 @@ public class CommonUtils {
 
         return ext;
     }
-
     public static boolean isExtStorageReadable(){
 
         String state = Environment.getExternalStorageState();
@@ -37,7 +38,6 @@ public class CommonUtils {
         }
         return false;
     }
-
     public static final String getStringTimeFromLong(final long timeInMillis){
 
         final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
@@ -46,7 +46,6 @@ public class CommonUtils {
         c.setTimeZone(TimeZone.getDefault());
         return format.format(c.getTime());
     }
-
     public static final String getStringSizeFileFromLong(final long fileSize){
 
         double sizeInMB = (double)fileSize/(1024*1024);
@@ -59,7 +58,6 @@ public class CommonUtils {
         else
             return fileSize + " B";
     }
-
     private static double roundDoubleToDecimal(double d){
 
         d = d * 10;
@@ -67,5 +65,10 @@ public class CommonUtils {
         d = (double)i/10;
 
         return d;
+    }
+    public static long getRealLastModified(File file) {
+
+        long lastModified = file.lastModified();
+        return lastModified > 0? lastModified: 0;
     }
 }

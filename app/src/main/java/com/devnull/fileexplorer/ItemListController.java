@@ -8,10 +8,11 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Created by devnull on 25.03.2016.
@@ -24,8 +25,8 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
     private List<ItemRow>   rowList;
     private Context         context;
     private List<String>    fileTypesList;
-    private List<File>      dirList;
-    private List<File>      fileList;
+    private File[] dirArray;
+    private File[] fileArray;
 
 
 
@@ -34,9 +35,6 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
         this.context = context;
         rowList = new ArrayList<ItemRow>();
-        dirList = new ArrayList<File>();
-        fileList = new ArrayList<File>();
-
     }
 
     public void setCurrentDir(@Nullable File file){
@@ -45,8 +43,8 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
     public void fillData(){
 
-        dirList.clear();
-        fileList.clear();
+        dirArray = null;
+        fileArray = null;
 
         if (currentDir != null)
             fillDirAndFileList();
@@ -58,19 +56,22 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
         if (currentDir != null) {
 
-            File files[] = currentDir.listFiles();
-
-            dirList = new ArrayList<File>();
-            fileList = new ArrayList<File>();
-
-            for (File file : files) {
-
-                if (file.isDirectory())
-                    dirList.add(file);
-                else {
-                    fileList.add(file);
+            dirArray = currentDir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
                 }
-            }
+            });
+
+            fileArray = currentDir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return !file.isDirectory();
+                }
+            });
+
+            Arrays.sort(dirArray);
+            Arrays.sort(fileArray);
 
             fillItemRowList();
         }
@@ -87,12 +88,12 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
         if (currentDir == null) {
 
-            dirList.add(new File("/"));
-            dirList.add(context.getFilesDir());
+            dirArray = new File[2];
+            dirArray[0] = new File("/");
 
             try {
-                if (ExplorerFragment.isExtStorageReadable())
-                    dirList.add(new File(Environment.getExternalStorageDirectory().getAbsolutePath()));
+                if (CommonUtils.isExtStorageReadable())
+                    dirArray[1] = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 
             } catch (Exception e) {
 
@@ -113,14 +114,22 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
             ItemRow parentRow = createAndSetUpItemRow(context, currentDir, true, this);
             rowList.add(parentRow);
         }
-        for (File dir: dirList) {
-            ItemRow tmp = createAndSetUpItemRow(context, dir, false, this);
-            rowList.add(tmp);
+        if (dirArray != null) {
+            for (File dir : dirArray) {
+                if (dir != null) {
+                    ItemRow tmp = createAndSetUpItemRow(context, dir, false, this);
+                    rowList.add(tmp);
+                }
+            }
         }
-        for (File file: fileList){
-            ItemRow tmp = createAndSetUpItemRow(context, file, false, this);
+        if (fileArray != null) {
+            for (File file : fileArray) {
+                if (file != null) {
+                    ItemRow tmp = createAndSetUpItemRow(context, file, false, this);
 
-            rowList.add(tmp);
+                    rowList.add(tmp);
+                }
+            }
         }
     }
 

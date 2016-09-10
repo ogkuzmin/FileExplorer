@@ -23,12 +23,13 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
 
     private LinearLayout            rootView;
     private File                    currentDir;
-    private FileExplorerListener    activityListener;
-    private ItemListController itemListController;
+    private FileEventListener       activityListener;
+    private ItemListController      itemListController;
 
-    public interface FileExplorerListener{
+    public interface FileEventListener {
 
-        public void onEventInFileExplorer(File file);
+        public void onFileEvent(File file);
+        public void onLongFileEvent(File file, int eventCode);
     }
 
     public ExplorerFragment()
@@ -70,7 +71,7 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
             currentDir = file;
             fillDataAndAddViews(rootView);
         }
-        activityListener.onEventInFileExplorer(file);
+        activityListener.onFileEvent(file);
     }
 
     @Override
@@ -85,11 +86,13 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
         else if (currentDir.getAbsolutePath().equalsIgnoreCase(
                 Environment.getExternalStorageDirectory().getAbsolutePath()))
             return getResources().getString(ItemRow.EXTERNAL_STORAGE_STRING_CODE);
+        else if (currentDir.getAbsolutePath().equalsIgnoreCase("/"))
+            return getResources().getString(ItemRow.ROOT_DIRECTORY_STRING_CODE);
         else
             return currentDir.getName();
     }
 
-    public void registerFileExplorerListener(FileExplorerListener activityListener) {
+    public void registerFileExplorerListener(FileEventListener activityListener) {
         this.activityListener = activityListener;
     }
 

@@ -5,5 +5,5 @@
     <string name="directory">Directory</string>
     <string name="file">File</string>
     <string name="choose_dir">Choose the directory</string>
-
+    <string name="last_modified">last modified</string>>
 </resources>

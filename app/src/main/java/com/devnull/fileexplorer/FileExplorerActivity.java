@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 
 import java.io.File;
 
-public class FileExplorerActivity extends AppCompatActivity implements ExplorerFragment.FileExplorerListener {
+public class FileExplorerActivity extends AppCompatActivity implements ExplorerFragment.FileEventListener {
 
     ExplorerFragment    explorerFragment;
     LinearLayout        container;
@@ -47,23 +47,37 @@ public class FileExplorerActivity extends AppCompatActivity implements ExplorerF
     protected void onStart() {
         super.onStart();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        updateToolbar();
+    }
+
+    public void updateToolbar(){
+        toolbar.setTitleTextColor(getResources().getColor(R.color.background));
+        String toolbarTitle = explorerFragment.getToolbarTitle();
         getSupportActionBar().setTitle(explorerFragment.getToolbarTitle());
+
+        if (!toolbarTitle.equalsIgnoreCase(getResources().getString(R.string.choose_dir)))
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        else
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
 
-
     @Override
-    public void onEventInFileExplorer(@Nullable File file) {
+    public void onFileEvent(@Nullable File file) {
 
         if (file == null)
-            toolbar.setTitle(explorerFragment.getToolbarTitle());
+            updateToolbar();
         else {
             if (file.isDirectory())
-                toolbar.setTitle(explorerFragment.getToolbarTitle());
+                updateToolbar();
             else
                 showConfirmDialog(file);
         }
+
+    }
+
+    @Override
+    public void onLongFileEvent(File file, int eventCode) {
 
     }
 
