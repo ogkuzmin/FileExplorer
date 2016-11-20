@@ -1,4 +1,4 @@
-package com.devnull.fileexplorer;
+package com.devnull.fileexplorer.workers;
 
 
 import android.content.Context;
@@ -6,6 +6,9 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ViewGroup;
+
+import com.devnull.fileexplorer.CommonUtils;
+import com.devnull.fileexplorer.ui.ItemRow;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -24,9 +27,8 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
     private File            currentDir;
     private List<ItemRow>   rowList;
     private Context         context;
-    private List<String>    fileTypesList;
-    private File[] dirArray;
-    private File[] fileArray;
+    private File[]          dirArray;
+    private File[]          fileArray;
 
 
 

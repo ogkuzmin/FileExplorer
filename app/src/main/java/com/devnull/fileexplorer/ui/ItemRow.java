@@ -1,10 +1,8 @@
-package com.devnull.fileexplorer;
+package com.devnull.fileexplorer.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -16,6 +14,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.devnull.fileexplorer.CommonUtils;
+import com.devnull.fileexplorer.R;
+import com.devnull.fileexplorer.analyzer.FileTypeCollection.CommonType;
 
 import java.io.File;
 
@@ -44,6 +46,8 @@ public class ItemRow extends RelativeLayout implements
 
     private RelativeLayout          container;
     private File                    itemFile;
+    private CommonType              fileType;
+    private String                  MimeType;
     private Context                 context;
     private int                     itemCode;
     private boolean                 isParent = false;

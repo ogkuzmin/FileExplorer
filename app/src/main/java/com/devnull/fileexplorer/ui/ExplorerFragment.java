@@ -1,4 +1,4 @@
-package com.devnull.fileexplorer;
+package com.devnull.fileexplorer.ui;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import com.devnull.fileexplorer.workers.ItemListController;
+import com.devnull.fileexplorer.R;
 
 import java.io.File;
 import java.util.Observable;
@@ -24,7 +27,7 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
     private LinearLayout            rootView;
     private File                    currentDir;
     private FileEventListener       activityListener;
-    private ItemListController      itemListController;
+    private ItemListController itemListController;
 
     public interface FileEventListener {
 

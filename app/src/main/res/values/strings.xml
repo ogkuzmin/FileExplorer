@@ -5,5 +5,12 @@
     <string name="directory">Directory</string>
     <string name="file">File</string>
     <string name="choose_dir">Choose the directory</string>
-    <string name="last_modified">last modified</string>>
+    <string name="last_modified">last modified</string>
+    <string name="menu_copy">Copy</string>
+    <string name="menu_rename">Rename</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_cut">Cut</string>
+    <string name="action_confirmation_title">Please, confirm your choice</string>
+    <string name="action_confirmation_text">Are you sure that you want to </string>
+    <string name="action_confirm">Confirm</string>
 </resources>

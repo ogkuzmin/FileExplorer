@@ -1,4 +1,4 @@
-package com.devnull.fileexplorer;
+package com.devnull.fileexplorer.ui;
 
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import com.devnull.fileexplorer.R;
+import com.devnull.fileexplorer.ui.ExplorerFragment;
 
 import java.io.File;
 

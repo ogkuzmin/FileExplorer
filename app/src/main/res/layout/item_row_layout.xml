@@ -5,36 +5,47 @@
     android:background="@color/background"
     android:clickable="true">
     <RelativeLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:id="@+id/container_item_row"
             android:clickable="true">
-    <ImageView
-        android:layout_width="@dimen/icon_item_size"
-        android:layout_height="@dimen/icon_item_size"
-        android:layout_margin="16dp"
-        android:id="@+id/item_icon" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/title_item"
-        android:text="Folder"
-        android:textColor="@color/textColor"
-        android:textSize="@dimen/title_item_text_size"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:layout_marginTop="16dp"
-        android:layout_toRightOf="@id/item_icon"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/subtitle_item"
-        android:text="Subtitle"
-        android:textSize="@dimen/subtitle_item_text_size"
-        android:textColor="@color/text_color_secondary"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:layout_toRightOf="@id/item_icon"
-        android:layout_below="@id/title_item"/>
+
+        <ImageView
+            android:layout_width="@dimen/icon_item_size"
+            android:layout_height="@dimen/icon_item_size"
+            android:layout_margin="16dp"
+            android:id="@+id/item_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/title_item"
+            android:text="Folder"
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/title_item_text_size"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_marginTop="16dp"
+            android:layout_toRightOf="@id/item_icon"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/subtitle_item"
+            android:text="Subtitle"
+            android:textSize="@dimen/subtitle_item_text_size"
+            android:textColor="@color/text_color_secondary"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_toRightOf="@id/item_icon"
+            android:layout_below="@id/title_item"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:checked="true"
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
+
 </RelativeLayout>
