@@ -47,7 +47,6 @@ public class ItemRow extends RelativeLayout implements
     private RelativeLayout          container;
     private File                    itemFile;
     private CommonType              fileType;
-    private String                  MimeType;
     private Context                 context;
     private int                     itemCode;
     private boolean                 isParent = false;

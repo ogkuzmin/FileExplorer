@@ -52,7 +52,7 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
                              @Nullable Bundle savedInstanceState) {
         rootView = (LinearLayout) inflater.inflate(R.layout.explorer_fragment_layout, container, false);
         if (itemListController == null)
-            itemListController = new ItemListController(getContext());
+            itemListController = new ItemListController(getActivity());
         fillDataAndAddViews(rootView);
         return rootView;
     }
@@ -106,7 +106,7 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
 
             if (!(curPath.equalsIgnoreCase("/")
                     || curPath.equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath())
-                    || curPath.equalsIgnoreCase(getContext().getFilesDir().getAbsolutePath()))) {
+                    || curPath.equalsIgnoreCase(getActivity().getFilesDir().getAbsolutePath()))) {
                 String parentPath = currentDir.getParent();
                 if (parentPath != null)
                     newCurrentDir = new File(parentPath);
