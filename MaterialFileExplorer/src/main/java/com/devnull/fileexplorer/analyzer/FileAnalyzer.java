@@ -29,9 +29,9 @@ public class FileAnalyzer {
 
     private FileAnalyzer() { }
 
-    public Pair<CommonType, String> analyzeFile(File file) {
+    /*public Pair<CommonType, String> analyzeFile(File file) {
 
-    }
+    }*/
 
     public enum TextEncodings {
         ASCII,

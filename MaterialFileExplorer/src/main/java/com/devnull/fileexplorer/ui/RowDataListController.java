@@ -1,14 +1,13 @@
-package com.devnull.fileexplorer.workers;
+package com.devnull.fileexplorer.ui;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.ViewGroup;
 
 import com.devnull.fileexplorer.CommonUtils;
-import com.devnull.fileexplorer.ui.ItemRow;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -20,40 +19,49 @@ import java.util.Observable;
 /**
  * Created by devnull on 25.03.2016.
  */
-public class ItemListController extends Observable implements ItemRow.OnItemRowClickListener {
+public class RowDataListController extends Observable implements ItemRow.OnItemRowClickListener {
 
-    private static final String TAG = "ItemListController";
+    private static final String TAG = RowDataListController.class.getSimpleName();
 
     private File            currentDir;
-    private List<ItemRow>   rowList;
+    private List<RowData>   rowDataList;
     private Context         context;
     private File[]          dirArray;
     private File[]          fileArray;
+    private Activity        hostActivity;
 
 
-
-
-    public ItemListController(Context context){
+    public RowDataListController(Context context){
 
         this.context = context;
-        rowList = new ArrayList<ItemRow>();
+        rowDataList = new ArrayList<RowData>();
     }
-
     public void setCurrentDir(@Nullable File file){
         this.currentDir = file;
+        fillData();
     }
-
-    public void fillData(){
+    private void fillData(){
 
         dirArray = null;
         fileArray = null;
 
-        if (currentDir != null)
+        if (currentDir != null) {
+            //standard case. Fills data for selected currentDir.
             fillDirAndFileList();
-        else
+        } else {
+            //case for first app screen with root dir, sdcard
             fillRootDirRowList();
+        }
     }
-
+    public Context getContext() {
+        return context;
+    }
+    public List<RowData> getRowDataList() {
+        return rowDataList;
+    }
+    public void setHostActivity(Activity hostActivity){
+        this.hostActivity = hostActivity;
+    }
     private void fillDirAndFileList(){
 
         if (currentDir != null) {
@@ -78,14 +86,6 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
             fillItemRowList();
         }
     }
-
-    public void setOnBackPressedListener(ItemRow.OnBackPressedListener onBackPressedListener){
-
-        for (ItemRow row: rowList)
-            row.setOnBackPressedListener(onBackPressedListener);
-    }
-
-
     private void fillRootDirRowList(){
 
         if (currentDir == null) {
@@ -101,7 +101,6 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
                 Log.e(TAG, "Exception in fillRootDirRowList() is " + e.getMessage());
             }
-
             fillItemRowList();
         }
     }
@@ -110,67 +109,53 @@ public class ItemListController extends Observable implements ItemRow.OnItemRowC
 
         Log.i(TAG, "starting fillItemRowList()");
 
-        rowList.clear();
+        rowDataList.clear();
 
         if (currentDir != null){
-            ItemRow parentRow = createAndSetUpItemRow(context, currentDir, true, this);
-            rowList.add(parentRow);
+            RowData parentRowData = createRowData(currentDir, true, this);
+            rowDataList.add(parentRowData);
         }
         if (dirArray != null) {
             for (File dir : dirArray) {
                 if (dir != null) {
-                    ItemRow tmp = createAndSetUpItemRow(context, dir, false, this);
-                    rowList.add(tmp);
+                    RowData tmp = createRowData(dir, false, this);
+                    rowDataList.add(tmp);
                 }
             }
         }
         if (fileArray != null) {
             for (File file : fileArray) {
                 if (file != null) {
-                    ItemRow tmp = createAndSetUpItemRow(context, file, false, this);
+                    RowData tmp = createRowData(file, false, this);
 
-                    rowList.add(tmp);
+                    rowDataList.add(tmp);
                 }
             }
         }
     }
-
-    private ItemRow createAndSetUpItemRow(Context context, File file, boolean isParent, ItemRow.OnItemRowClickListener headListener){
-
-        ItemRow row = new ItemRow(context);
-        row.setItemFile(file);
-
-        if (isParent)
-        row.setParentBoolean();
-
-        row.initRow();
-        row.registerHeadListener(headListener);
-
-        return row;
+    /**
+     * Method for creating new RowData.
+     *
+     * @param file set file which would represent this row.
+     * @param isParent show is this row represents parent row of directory of files.
+     *                 Uses for returning to parent directory.
+     * @param headListener object that used for callback OnItemRowClickListener
+     * @return new RowData.
+     */
+    private RowData createRowData(File file, boolean isParent, ItemRow.OnItemRowClickListener headListener){
+        RowData rowData = new RowData();
+        rowData.setItemFile(file);
+        rowData.setParentBoolean(isParent);
+        rowData.registerHeadListener(headListener);
+        rowData.setHostActivity(hostActivity);
+        return rowData;
     }
-
-    public void addViewsToContainer(ViewGroup container){
-
-        container.removeAllViews();
-
-        for (ItemRow row: rowList)
-            container.addView(row);
-    }
-
     @Override
     public void onItemRowClick(File file) {
-
-        if (file.isDirectory())
-        updateData(file);
-
+        if (file.isDirectory()) {
+            setCurrentDir(file);
+        }
         setChanged();
         notifyObservers(file);
-    }
-
-    public void updateData(@Nullable File file){
-
-        currentDir = file;
-
-        fillData();
     }
 }

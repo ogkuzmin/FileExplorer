@@ -1,5 +1,6 @@
 package com.devnull.fileexplorer.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,9 +9,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,265 +27,177 @@ import java.io.File;
 /**
  * Created by devnull on 29.03.2016.
  */
-public class ItemRow extends RelativeLayout implements
-        View.OnClickListener,
-        View.OnLongClickListener {
+public class ItemRow extends RelativeLayout {
 
-    private static final String TAG = "ItemRow";
+    private static final String TAG = ItemRow.class.getSimpleName();
 
-    public static final int EXTERNAL_STORAGE_CODE = 4;
-    public static final int EXTERNAL_STORAGE_STRING_CODE = R.string.ext_storage;
-
-    public static final int ROOT_DIRECTORY_CODE = 3;
-    public static final int ROOT_DIRECTORY_STRING_CODE = R.string.root_directory;
-
-    public static final int DIRECTORY_CODE = 2;
-    public static final int DIRECTORY_STRING_CODE = R.string.directory;
-
-    public static final int FILE_CODE = 1;
-    public static final int FILE_STRING_CODE = R.string.file;
-
-    private static final int NO_SUCH_ICON = -1;
 
     private RelativeLayout          container;
-    private File                    itemFile;
-    private CommonType              fileType;
-    private Context                 context;
-    private int                     itemCode;
-    private boolean                 isParent = false;
-    private boolean                 isDir;
-    private boolean                 isReadable;
     private ImageView               icon;
     private TextView                title;
     private TextView                subTitle;
+
+    private Context                 context;;
+    private RowData                 itemData;
+
     private OnItemRowClickListener  headListener;
-    private OnBackPressedListener   onBackPressedListener;
 
-    public interface OnBackPressedListener{
+    private boolean isInitialized = false;
 
-        public void onBackPressed();
-    }
-
+    /**
+     * The interface that describes callback on item click event.
+     */
     public interface OnItemRowClickListener {
 
         public void onItemRowClick(@Nullable File file);
     }
-
     public ItemRow(Context context) {
-
         super(context);
-        this.context = context;
     }
-
-    public void setItemFile(File file){
-        itemFile = file;
+    public ItemRow(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
-
-    public void initRow(){
-        determineItemCode();
-        initComponents();
+    public void setRowDataAndInitUi(RowData rowData) {
+        itemData = rowData;
+        if (!isInitialized) {
+            initUiComponents();
+        } else {
+            clearAllEffects();
+        }
+        setUpViews();
     }
-
-    private void initComponents() {
-
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.item_row_layout, this);
-
+    public RowData getItemData() {
+        return itemData;
+    }
+    private void initUiComponents() {
         container = (RelativeLayout) findViewById(R.id.container_item_row);
-        container.setOnClickListener(this);
         container.setBackgroundResource(R.drawable.list_item_background);
 
         icon = (ImageView) findViewById(R.id.item_icon);
         title = (TextView) findViewById(R.id.title_item);
         subTitle = (TextView) findViewById(R.id.subtitle_item);
 
-        setUpViews();
+        isInitialized = true;
     }
-
-    private void determineItemCode() {
-
-        isDir = itemFile.isDirectory();
-
-        if(isDir)
-            isReadable = itemFile.canRead();
-
-        if (isDir) {
-            if (itemFile.getAbsolutePath().equalsIgnoreCase("/"))
-                itemCode = ROOT_DIRECTORY_CODE;
-            else if (itemFile.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()))
-                itemCode = EXTERNAL_STORAGE_CODE;
-            else
-                itemCode = DIRECTORY_CODE;
-        } else
-            itemCode = FILE_CODE;
-
-        Log.i(TAG, "determineItemCode(): itemCode = " + itemCode);
+    private void clearAllEffects() {
+        icon.setImageAlpha(255);
+        icon.clearColorFilter();
+        title.setTextColor(getResources().getColor(R.color.textColor));
+        subTitle.setTextColor(getResources().getColor(R.color.text_color_secondary));
     }
-
     private void setUpViews() {
-
-        int iconResId = getIconResourceId();
-
-        if (iconResId != NO_SUCH_ICON && iconResId != FILE_CODE) {
-            icon.setImageResource(iconResId);
-            icon.setImageAlpha(60);
-            icon.setColorFilter(new ColorDrawable(getResources().getColor(R.color.toolbar)).getColor());
-        } else if (iconResId == FILE_CODE) {
-            String extension = CommonUtils.getFileExtension(itemFile);
-            icon.setImageBitmap(generateIconBitmap(extension));
-        }
+        container.setOnClickListener(itemData);
 
         String titleText;
 
-        if (isParentDir()) {
+        if (itemData.isParentDir()) {
             titleText = "..";
             title.setText(titleText);
         }
 
+        switch (itemData.getItemCode()) {
 
-        switch (itemCode) {
-
-            case DIRECTORY_CODE: {
-                if (!isParentDir()) {
-                    titleText = itemFile.getName();
+            case RowData.DIRECTORY_CODE: {
+                if (!itemData.isParentDir()) {
+                    titleText = itemData.getItemFile().getName();
                     title.setText(titleText);
-                    if (!isReadable) {
-                        icon.setImageAlpha(20);
+                    if (!itemData.isReadable()) {
+                        icon.setImageAlpha(getResources().getInteger(R.integer.unreadable_directory_alpha));
                         title.setTextColor(getResources().getColor(R.color.no_active_item));
                         subTitle.setTextColor(getResources().getColor(R.color.no_active_item));
                     }
                 }
-                subTitle.setText(DIRECTORY_STRING_CODE);
+                subTitle.setText(RowData.DIRECTORY_STRING_CODE);
             }
             break;
 
-            case FILE_CODE: {
-                title.setText(itemFile.getName());
-                long lastModified = CommonUtils.getRealLastModified(itemFile);
-                String subTitleText = CommonUtils.getStringSizeFileFromLong(itemFile.length());
+            case RowData.FILE_CODE: {
+
+                Log.d(TAG, "setUpViews(). case RowData.FILE_CODE");
+
+                title.setText(itemData.getItemFile().getName());
+                long lastModified = CommonUtils.getRealLastModified(itemData.getItemFile());
+                String subTitleText = CommonUtils.getStringSizeFileFromLong(itemData.getItemFile().length());
                 if (lastModified > 0)
                     subTitleText += ", " + getResources().getString(R.string.last_modified)
-                            + " " + CommonUtils.getStringTimeFromLong(itemFile.lastModified());
+                            + " " + CommonUtils.getStringTimeFromLong(itemData.getItemFile().lastModified());
                 subTitle.setText(subTitleText);
+
+                Log.d(TAG, "setUpViews(). case RowData.FILE_CODE\n" + "file is " + itemData.getItemFile().getName() + "\n" +
+                        "last modified " + CommonUtils.getStringTimeFromLong(itemData.getItemFile().lastModified()) + "\n" +
+                        "size is " + CommonUtils.getStringSizeFileFromLong(itemData.getItemFile().length()));
             }
             break;
 
-            case ROOT_DIRECTORY_CODE: {
-                if(!isParentDir())
+            case RowData.ROOT_DIRECTORY_CODE: {
+                if(!itemData.isParentDir())
                 title.setText("/");
-                subTitle.setText(ROOT_DIRECTORY_STRING_CODE);
+                subTitle.setText(RowData.ROOT_DIRECTORY_STRING_CODE);
             }
             break;
 
-            case EXTERNAL_STORAGE_CODE: {
-                if (!isParentDir())
-                title.setText(EXTERNAL_STORAGE_STRING_CODE);
+            case RowData.EXTERNAL_STORAGE_CODE: {
+                if (!itemData.isParentDir())
+                title.setText(RowData.EXTERNAL_STORAGE_STRING_CODE);
                 subTitle.setVisibility(INVISIBLE);
             }
             break;
 
         }
-    }
 
+        int iconResId = getIconResourceId();
+
+        if (iconResId != RowData.NO_SUCH_ICON && iconResId != RowData.FILE_CODE) {
+            icon.setImageResource(iconResId);
+            icon.setImageAlpha(getResources().getInteger(R.integer.standard_icon_alpha));
+            icon.setColorFilter(new ColorDrawable(getResources().getColor(R.color.toolbar)).getColor());
+        } else if (iconResId == RowData.FILE_CODE) {
+            String extension = CommonUtils.getFileExtension(itemData.getItemFile());
+            icon.setImageBitmap(generateIconBitmap(extension));
+        }
+    }
     private int getIconResourceId() {
 
-        int resId = NO_SUCH_ICON;
-        String extension = "";
+        int resId = RowData.NO_SUCH_ICON;
 
-        if(isParentDir())
+        if(itemData.isParentDir())
             return R.drawable.ic_folder_black_48dp;
 
-        switch (itemCode) {
-            case FILE_CODE:
-                resId = FILE_CODE;
+        switch (itemData.getItemCode()) {
+            case RowData.FILE_CODE:
+                resId = RowData.FILE_CODE;
                 break;
 
-            case DIRECTORY_CODE:
+            case RowData.DIRECTORY_CODE:
                 resId = R.drawable.ic_folder_black_48dp;
                 break;
 
-            case EXTERNAL_STORAGE_CODE:
+            case RowData.EXTERNAL_STORAGE_CODE:
                 resId = R.drawable.ic_sd_storage_black_48dp;
                 break;
 
-            case ROOT_DIRECTORY_CODE:
+            case RowData.ROOT_DIRECTORY_CODE:
                 resId = R.drawable.ic_folder_black_48dp;
                 break;
         }
 
         return resId;
     }
+    private Bitmap generateIconBitmap(String extension) {
 
-    public void setParentBoolean() {
-
-        isParent = true;
-    }
-
-    public boolean isParentDir() {
-        return isParent;
-    }
-
-    public void registerHeadListener(OnItemRowClickListener listener) {
-
-        headListener = listener;
-    }
-
-    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
-
-        this.onBackPressedListener = onBackPressedListener;
-    }
-
-    @Override
-    public void onClick(View v) {
-
-        if (isParentDir()) {
-
-            onBackPressedListener.onBackPressed();
-            return;
-        }
-
-        switch (itemCode) {
-
-            case ROOT_DIRECTORY_CODE:
-                headListener.onItemRowClick(new File("/"));
-                break;
-
-            case EXTERNAL_STORAGE_CODE:
-                if(CommonUtils.isExtStorageReadable())
-                headListener.onItemRowClick(Environment.getExternalStorageDirectory());
-
-                break;
-
-            case DIRECTORY_CODE:
-
-                if (itemFile.canRead())
-                headListener.onItemRowClick(itemFile);
-
-                break;
-
-            case FILE_CODE:
-                headListener.onItemRowClick(itemFile);
-                break;
-
-        }
-
-    }
-
-    public Bitmap generateIconBitmap(String extension) {
+        Log.d(TAG, "generateIconBitmap(String extension). Ext is " + extension);
 
         if (extension.length() > 3 || extension.equalsIgnoreCase(""))
             extension = "?";
 
-        int startX = icon.getLeft();
-        int startY = icon.getTop();
         float outerWidth = getResources().getDimension(R.dimen.icon_item_size);
         float strokeWidth = outerWidth/8;
         float innerWidth = outerWidth - (2*strokeWidth);
         float textSize = getResources().getDimension(R.dimen.icon_text_size);
 
-        Bitmap icon = Bitmap.createBitmap((int)outerWidth, (int)outerWidth, Bitmap.Config.ARGB_8888);
+        Bitmap bitmapIcon = Bitmap.createBitmap((int)outerWidth, (int)outerWidth, Bitmap.Config.ARGB_8888);
 
-        Canvas canvas = new Canvas(icon);
+        Canvas canvas = new Canvas(bitmapIcon);
         Paint outerRectPaint = new Paint(), innerRectPaint = new Paint(), textPaint = new Paint();
         outerRectPaint.setColor(getResources().getColor(R.color.icon_text_color));
         innerRectPaint.setColor(getResources().getColor(R.color.background));
@@ -294,17 +209,16 @@ public class ItemRow extends RelativeLayout implements
         textPaint.setTextSize(textSize);
         textPaint.setAntiAlias(true);
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+
+        int startX = container.getLeft() + 16;
+        int startY = container.getTop() + 16;
+
         canvas.drawRect(startX, startY, startX + outerWidth, startY + outerWidth, outerRectPaint);
         canvas.drawRect(startX + strokeWidth, startY + strokeWidth,
                 startX + strokeWidth + innerWidth, startY + strokeWidth + innerWidth, innerRectPaint);
         canvas.drawText(extension,startX + outerWidth/2, startY + 5*outerWidth/12 + textSize/2, textPaint);
 
-        return icon;
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-        return false;
+        return bitmapIcon;
     }
 }
 
