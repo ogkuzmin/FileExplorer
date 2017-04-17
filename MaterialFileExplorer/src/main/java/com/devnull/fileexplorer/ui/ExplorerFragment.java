@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.devnull.fileexplorer.analyzer.FileAnalyzerHelper;
+import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
+import com.devnull.fileexplorer.interfaces.FileEventListener;
+import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
 import com.devnull.fileexplorer.workers.ItemListController;
 import com.devnull.fileexplorer.R;
 
@@ -20,20 +24,15 @@ import java.util.Observer;
 /**
  * Created by devnull on 25.03.2016.
  */
-public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBackPressedListener {
+public class ExplorerFragment extends Fragment implements Observer, OnBackPressedListener {
 
-    private static final String TAG = "ExplorerFragment";
+    private static final String TAG = ExplorerFragment.class.getSimpleName();
 
     private LinearLayout            rootView;
     private File                    currentDir;
     private FileEventListener       activityListener;
-    private ItemListController itemListController;
-
-    public interface FileEventListener {
-
-        public void onFileEvent(File file);
-        public void onLongFileEvent(File file, int eventCode);
-    }
+    private ItemListController      itemListController;
+    private FileAnalyzerController  fileAnalyzerController;
 
     public ExplorerFragment()
     {
@@ -41,7 +40,6 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
     }
 
     public void setCurrentDir(File file){
-
         currentDir = file;
     }
 
@@ -51,35 +49,44 @@ public class ExplorerFragment extends Fragment implements Observer, ItemRow.OnBa
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         rootView = (LinearLayout) inflater.inflate(R.layout.explorer_fragment_layout, container, false);
-        if (itemListController == null)
+
+        if (itemListController == null) {
             itemListController = new ItemListController(getActivity());
+        }
+
+        if (fileAnalyzerController == null) {
+            fileAnalyzerController = new FileAnalyzerHelper();
+        }
+
         fillDataAndAddViews(rootView);
+
         return rootView;
     }
 
     public void fillDataAndAddViews(ViewGroup container) {
+
         itemListController.setCurrentDir(currentDir);
         itemListController.addObserver(this);
         itemListController.fillData();
-        itemListController.setOnBackPressedListener(ExplorerFragment.this);
+        itemListController.setOnBackPressedListener(this);
         itemListController.addViewsToContainer(container);
     }
 
     public void updateData(@Nullable File file) {
+
         if (file == null) {
             currentDir = null;
             fillDataAndAddViews(rootView);
-        }
-        else if (file.isDirectory()) {
+        } else if (file.isDirectory()) {
             currentDir = file;
             fillDataAndAddViews(rootView);
+            fileAnalyzerController.startAsyncQueryToAnalyzeFile(currentDir.getAbsolutePath());
         }
         activityListener.onFileEvent(file);
     }
 
     @Override
     public void update(Observable observable, Object data) {
-        Log.i(TAG, "Observer get update message");
         updateData((File) data);
     }
 

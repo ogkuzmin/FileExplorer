@@ -9,14 +9,14 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.devnull.fileexplorer.R;
+import com.devnull.fileexplorer.interfaces.FileEventListener;
 import com.devnull.fileexplorer.ui.ExplorerFragment;
 
 import java.io.File;
 
-public class FileExplorerActivity extends AppCompatActivity implements ExplorerFragment.FileEventListener {
+public class FileExplorerActivity extends AppCompatActivity implements FileEventListener {
 
     ExplorerFragment    explorerFragment;
-    LinearLayout        container;
     Toolbar             toolbar;
 
     @Override
@@ -64,10 +64,8 @@ public class FileExplorerActivity extends AppCompatActivity implements ExplorerF
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
-
     @Override
     public void onFileEvent(@Nullable File file) {
-
         if (file == null)
             updateToolbar();
         else {
@@ -78,24 +76,18 @@ public class FileExplorerActivity extends AppCompatActivity implements ExplorerF
         }
 
     }
-
     @Override
     public void onLongFileEvent(File file, int eventCode) {
 
     }
-
     public void showConfirmDialog(File file){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false);
-
     }
-
     @Override
     public void onBackPressed() {
-
         if (explorerFragment != null){
-
             explorerFragment.onBackPressed();
         }
     }

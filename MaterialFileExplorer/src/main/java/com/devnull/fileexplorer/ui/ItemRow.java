@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.devnull.fileexplorer.CommonUtils;
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.analyzer.FileTypeCollection.CommonType;
+import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
+import com.devnull.fileexplorer.interfaces.OnItemRowClickListener;
 
 import java.io.File;
 
@@ -57,16 +59,6 @@ public class ItemRow extends RelativeLayout implements
     private TextView                subTitle;
     private OnItemRowClickListener  headListener;
     private OnBackPressedListener   onBackPressedListener;
-
-    public interface OnBackPressedListener{
-
-        public void onBackPressed();
-    }
-
-    public interface OnItemRowClickListener {
-
-        public void onItemRowClick(@Nullable File file);
-    }
 
     public ItemRow(Context context) {
 
@@ -120,7 +112,6 @@ public class ItemRow extends RelativeLayout implements
     }
 
     private void setUpViews() {
-
         int iconResId = getIconResourceId();
 
         if (iconResId != NO_SUCH_ICON && iconResId != FILE_CODE) {
@@ -141,7 +132,6 @@ public class ItemRow extends RelativeLayout implements
 
 
         switch (itemCode) {
-
             case DIRECTORY_CODE: {
                 if (!isParentDir()) {
                     titleText = itemFile.getName();
@@ -209,12 +199,10 @@ public class ItemRow extends RelativeLayout implements
                 resId = R.drawable.ic_folder_black_48dp;
                 break;
         }
-
         return resId;
     }
 
     public void setParentBoolean() {
-
         isParent = true;
     }
 
@@ -223,12 +211,10 @@ public class ItemRow extends RelativeLayout implements
     }
 
     public void registerHeadListener(OnItemRowClickListener listener) {
-
         headListener = listener;
     }
 
     public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
-
         this.onBackPressedListener = onBackPressedListener;
     }
 
@@ -236,13 +222,11 @@ public class ItemRow extends RelativeLayout implements
     public void onClick(View v) {
 
         if (isParentDir()) {
-
             onBackPressedListener.onBackPressed();
             return;
         }
 
         switch (itemCode) {
-
             case ROOT_DIRECTORY_CODE:
                 headListener.onItemRowClick(new File("/"));
                 break;
@@ -250,22 +234,17 @@ public class ItemRow extends RelativeLayout implements
             case EXTERNAL_STORAGE_CODE:
                 if(CommonUtils.isExtStorageReadable())
                 headListener.onItemRowClick(Environment.getExternalStorageDirectory());
-
                 break;
 
             case DIRECTORY_CODE:
-
                 if (itemFile.canRead())
                 headListener.onItemRowClick(itemFile);
-
                 break;
 
             case FILE_CODE:
                 headListener.onItemRowClick(itemFile);
                 break;
-
         }
-
     }
 
     public Bitmap generateIconBitmap(String extension) {
