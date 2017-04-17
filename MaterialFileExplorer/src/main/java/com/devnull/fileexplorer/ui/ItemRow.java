@@ -1,6 +1,5 @@
 package com.devnull.fileexplorer.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,11 +8,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,22 +24,46 @@ import java.io.File;
 /**
  * Created by devnull on 29.03.2016.
  */
-public class ItemRow extends RelativeLayout {
+public class ItemRow extends RelativeLayout implements
+        View.OnClickListener,
+        View.OnLongClickListener {
 
     private static final String TAG = ItemRow.class.getSimpleName();
 
+    public static final int EXTERNAL_STORAGE_CODE = 4;
+    public static final int EXTERNAL_STORAGE_STRING_CODE = R.string.ext_storage;
+
+    public static final int ROOT_DIRECTORY_CODE = 3;
+    public static final int ROOT_DIRECTORY_STRING_CODE = R.string.root_directory;
+
+    public static final int DIRECTORY_CODE = 2;
+    public static final int DIRECTORY_STRING_CODE = R.string.directory;
+
+    public static final int FILE_CODE = 1;
+    public static final int FILE_STRING_CODE = R.string.file;
+
+    private static final int NO_SUCH_ICON = -1;
 
     private RelativeLayout          container;
+    private File                    itemFile;
+    private CommonType              fileType;
+    private Context                 context;
+    private int                     itemCode;
+    private boolean                 isParent = false;
+    private boolean                 isDir;
+    private boolean                 isReadable;
     private ImageView               icon;
     private TextView                title;
     private TextView                subTitle;
-
-    private Context                 context;;
-    private RowData                 itemData;
-
     private OnItemRowClickListener  headListener;
+    private OnBackPressedListener   onBackPressedListener;
 
     private boolean isInitialized = false;
+
+    public interface OnBackPressedListener{
+
+        public void onBackPressed();
+    }
 
     /**
      * The interface that describes callback on item click event.
@@ -51,8 +72,11 @@ public class ItemRow extends RelativeLayout {
 
         public void onItemRowClick(@Nullable File file);
     }
+
     public ItemRow(Context context) {
+
         super(context);
+        this.context = context;
     }
     public ItemRow(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,6 +95,7 @@ public class ItemRow extends RelativeLayout {
     }
     private void initUiComponents() {
         container = (RelativeLayout) findViewById(R.id.container_item_row);
+        container.setOnClickListener(this);
         container.setBackgroundResource(R.drawable.list_item_background);
 
         icon = (ImageView) findViewById(R.id.item_icon);

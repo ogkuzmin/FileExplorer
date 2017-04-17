@@ -17,7 +17,6 @@ public class CommonUtils {
     private CommonUtils(){}
 
     public static String getFileExtension(File file){
-
         String ext = "";
 
         if (file.isFile()) {
@@ -30,7 +29,6 @@ public class CommonUtils {
         return ext;
     }
     public static boolean isExtStorageReadable(){
-
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
