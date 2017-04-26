@@ -1,16 +1,17 @@
 package com.devnull.fileexplorer.ui;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.interfaces.FileEventListener;
-import com.devnull.fileexplorer.ui.ExplorerFragment;
 
 import java.io.File;
 
@@ -18,9 +19,8 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
 
     private ExplorerFragment    explorerFragment;
     private Toolbar             toolbar;
-    private RecyclerView mRecyclerView;
-    private RecyclerViewAdapter mAdapter;
-
+    private static final String READ_WRITE_EXT_STORAGE_PERMISSION = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final int    READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +43,22 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
             explorerFragment = new ExplorerFragment();
             explorerFragment.registerFileExplorerListener(this);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.container, explorerFragment).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container_for_fragment,
+                    explorerFragment).addToBackStack(null).commit();
         }
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.container_for_content);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        mAdapter = new RecyclerViewAdapter(rowDataListController);
-        mRecyclerView.setLayoutManager(llm);
-        mRecyclerView.setAdapter(mAdapter);
-
-
     }
-
     @Override
     protected void onStart() {
         super.onStart();
-
         updateToolbar();
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkFileReadingPermission();
+        }
+    }
     public void updateToolbar(){
         toolbar.setTitleTextColor(getResources().getColor(R.color.background));
         String toolbarTitle = explorerFragment.getToolbarTitle();
@@ -72,20 +69,16 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
         else
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
-
-
     @Override
     public void onFileEvent(@Nullable File file) {
-
-        if (file == null)
+        if (file == null) {
             updateToolbar();
-        else {
+        } else {
             if (file.isDirectory())
                 updateToolbar();
             else
                 showConfirmDialog(file);
         }
-
     }
 
     @Override
@@ -107,5 +100,33 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
 
             explorerFragment.onBackPressed();
         }
+    }
+    private void checkFileReadingPermission() {
+        if (ContextCompat.checkSelfPermission(this, READ_WRITE_EXT_STORAGE_PERMISSION)
+                == PackageManager.PERMISSION_DENIED) {
+
+            if (shouldShowRequestPermissionRationale(READ_WRITE_EXT_STORAGE_PERMISSION)) {
+
+            } else {
+                requestPermissions(new String[]{READ_WRITE_EXT_STORAGE_PERMISSION},
+                        READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST);
+            }
+        }
+
+
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // do nothing
+            } else {
+                showNoPermissionGranted();
+            }
+        }
+    }
+    private void showNoPermissionGranted() {
+
     }
 }

@@ -4,17 +4,17 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.devnull.fileexplorer.analyzer.FileAnalyzerHelper;
 import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
 import com.devnull.fileexplorer.interfaces.FileEventListener;
 import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
-import com.devnull.fileexplorer.workers.ItemListController;
 import com.devnull.fileexplorer.R;
 
 import java.io.File;
@@ -28,19 +28,24 @@ public class ExplorerFragment extends Fragment implements Observer, OnBackPresse
 
     private static final String TAG = ExplorerFragment.class.getSimpleName();
 
-    private LinearLayout            rootView;
+    private RelativeLayout          rootView;
+    private RecyclerView            mRecyclerView;
+    private RecyclerViewAdapter     mAdapter;
+
+    private FileEventListener       mActivityListener;
+    private RowDataListController   mRowDataListController;
+    private FileAnalyzerController  mFileAnalyzerController;
+
     private File                    currentDir;
-    private FileEventListener       activityListener;
-    private ItemListController      itemListController;
-    private FileAnalyzerController  fileAnalyzerController;
 
     public ExplorerFragment()
     {
         super();
     }
 
-    public void setCurrentDir(File file){
+    public void updateCurrentDir(File file){
         currentDir = file;
+        mRowDataListController.setCurrentDir(currentDir);
     }
 
     @Nullable
@@ -48,41 +53,40 @@ public class ExplorerFragment extends Fragment implements Observer, OnBackPresse
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        rootView = (LinearLayout) inflater.inflate(R.layout.explorer_fragment_layout, container, false);
+        rootView = (RelativeLayout) inflater.inflate(R.layout.explorer_fragment_layout, container, false);
 
-        if (itemListController == null) {
-            itemListController = new ItemListController(getActivity());
+        initAndSetupRowDataListController();
+
+        if (mFileAnalyzerController == null) {
+            mFileAnalyzerController = new FileAnalyzerHelper();
         }
 
-        if (fileAnalyzerController == null) {
-            fileAnalyzerController = new FileAnalyzerHelper();
-        }
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.container_for_content);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        mAdapter = new RecyclerViewAdapter(mRowDataListController);
+        mRecyclerView.setLayoutManager(llm);
 
-        fillDataAndAddViews(rootView);
+        mRecyclerView.setAdapter(mAdapter);
 
         return rootView;
     }
 
-    public void fillDataAndAddViews(ViewGroup container) {
-
-        itemListController.setCurrentDir(currentDir);
-        itemListController.addObserver(this);
-        itemListController.fillData();
-        itemListController.setOnBackPressedListener(this);
-        itemListController.addViewsToContainer(container);
+    private void initAndSetupRowDataListController() {
+        if (mRowDataListController == null) {
+            mRowDataListController = new RowDataListController(getActivity());
+            mRowDataListController.setOnBackPressedListener(this);
+            mRowDataListController.addObserver(this);
+        }
+        mRowDataListController.setCurrentDir(currentDir);
     }
 
     public void updateData(@Nullable File file) {
 
-        if (file == null) {
-            currentDir = null;
-            fillDataAndAddViews(rootView);
-        } else if (file.isDirectory()) {
-            currentDir = file;
-            fillDataAndAddViews(rootView);
-            fileAnalyzerController.startAsyncQueryToAnalyzeFile(currentDir.getAbsolutePath());
+        if (file == null || file.isDirectory()) {
+            updateCurrentDir(file);
+            mAdapter.notifyDataSetChanged();
         }
-        activityListener.onFileEvent(file);
+        mActivityListener.onFileEvent(file);
     }
 
     @Override
@@ -95,15 +99,15 @@ public class ExplorerFragment extends Fragment implements Observer, OnBackPresse
             return getResources().getString(R.string.choose_dir);
         else if (currentDir.getAbsolutePath().equalsIgnoreCase(
                 Environment.getExternalStorageDirectory().getAbsolutePath()))
-            return getResources().getString(ItemRow.EXTERNAL_STORAGE_STRING_CODE);
+            return getResources().getString(RowData.EXTERNAL_STORAGE_STRING_CODE);
         else if (currentDir.getAbsolutePath().equalsIgnoreCase("/"))
-            return getResources().getString(ItemRow.ROOT_DIRECTORY_STRING_CODE);
+            return getResources().getString(RowData.ROOT_DIRECTORY_STRING_CODE);
         else
             return currentDir.getName();
     }
 
     public void registerFileExplorerListener(FileEventListener activityListener) {
-        this.activityListener = activityListener;
+        this.mActivityListener = activityListener;
     }
 
     public void onBackPressed() {

@@ -1,13 +1,13 @@
-package com.devnull.fileexplorer.workers;
+package com.devnull.fileexplorer.ui;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.devnull.fileexplorer.CommonUtils;
+import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -28,7 +28,7 @@ public class RowDataListController extends Observable implements ItemRow.OnItemR
     private Context         context;
     private File[]          dirArray;
     private File[]          fileArray;
-    private Activity        hostActivity;
+    private OnBackPressedListener onBackPressedListener;
 
 
     public RowDataListController(Context context){
@@ -59,8 +59,8 @@ public class RowDataListController extends Observable implements ItemRow.OnItemR
     public List<RowData> getRowDataList() {
         return rowDataList;
     }
-    public void setHostActivity(Activity hostActivity){
-        this.hostActivity = hostActivity;
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
+        this.onBackPressedListener = onBackPressedListener;
     }
     private void fillDirAndFileList(){
 
@@ -80,8 +80,12 @@ public class RowDataListController extends Observable implements ItemRow.OnItemR
                 }
             });
 
-            Arrays.sort(dirArray);
-            Arrays.sort(fileArray);
+            if (dirArray != null) {
+                Arrays.sort(dirArray);
+            }
+            if (fileArray != null) {
+                Arrays.sort(fileArray);
+            }
 
             fillItemRowList();
         }
@@ -147,7 +151,7 @@ public class RowDataListController extends Observable implements ItemRow.OnItemR
         rowData.setItemFile(file);
         rowData.setParentBoolean(isParent);
         rowData.registerHeadListener(headListener);
-        rowData.setHostActivity(hostActivity);
+        rowData.setOnBackPressedListener(onBackPressedListener);
         return rowData;
     }
     @Override

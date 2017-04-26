@@ -8,6 +8,7 @@ import android.view.View;
 import com.devnull.fileexplorer.CommonUtils;
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.analyzer.FileTypeCollection.CommonType;
+import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
 
 import java.io.File;
 
@@ -36,7 +37,7 @@ public class RowData implements View.OnClickListener {
     private File        itemFile;
     private CommonType  fileType;
     private ItemRow.OnItemRowClickListener headListener;
-    private Activity hostActivity;
+    private OnBackPressedListener onBackPressedListener;
 
 
     private int         itemCode;
@@ -83,8 +84,8 @@ public class RowData implements View.OnClickListener {
     public void registerHeadListener(ItemRow.OnItemRowClickListener listener) {
         headListener = listener;
     }
-    public void setHostActivity(Activity hostActivity){
-        this.hostActivity = hostActivity;
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
+        this.onBackPressedListener = onBackPressedListener;
     }
     private void determineItemCode() {
 
@@ -108,7 +109,7 @@ public class RowData implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (isParentDir()) {
-            hostActivity.onBackPressed();
+            onBackPressedListener.onBackPressed();
             return;
         }
 

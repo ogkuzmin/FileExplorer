@@ -41,7 +41,6 @@ class FileTypeCacheDBHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
     private String getCommandToCreateFileTypeCacheTable() {
-
         String createTable;
 
         createTable = "CREATE TABLE " + FileTypeCacheEntry.TABLE_NAME + " (" +

@@ -15,10 +15,10 @@ import java.io.File;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    RowDataListController rowController;
+    private RowDataListController mRowController;
 
     public RecyclerViewAdapter(RowDataListController controller) {
-        rowController = controller;
+        mRowController = controller;
     }
 
     @Override
@@ -33,23 +33,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         RowData previousData = holder.itemRow.getItemData();
-        RowData actualData = rowController.getRowDataList().get(position);
+        RowData actualData = mRowController.getRowDataList().get(position);
 
         if (holder.itemRow.getItemData() == null ||
                 !(previousData.getItemFile().equals(actualData.getItemFile()))) {
-            RowData rowData = rowController.getRowDataList().get(position);
+            RowData rowData = mRowController.getRowDataList().get(position);
             holder.itemRow.setRowDataAndInitUi(rowData);
             processFileAnalyze(rowData.getItemFile());
         }
     }
     @Override
     public int getItemCount() {
-        return rowController.getRowDataList().size();
+        return mRowController.getRowDataList().size();
     }
     private void processFileAnalyze(File file) {
 
     }
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    static class ViewHolder extends RecyclerView.ViewHolder{
 
         public ItemRow itemRow;
 
