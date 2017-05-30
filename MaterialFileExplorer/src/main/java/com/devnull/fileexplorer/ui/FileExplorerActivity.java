@@ -2,20 +2,15 @@ package com.devnull.fileexplorer.ui;
 
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.devnull.fileexplorer.R;
-import com.devnull.fileexplorer.interfaces.FileEventListener;
 
-import java.io.File;
-
-public class FileExplorerActivity extends AppCompatActivity implements FileEventListener {
+public class FileExplorerActivity extends AppCompatActivity {
 
     private ExplorerFragment    explorerFragment;
     private Toolbar             toolbar;
@@ -41,8 +36,6 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
 
         if (explorerFragment == null){
             explorerFragment = new ExplorerFragment();
-            explorerFragment.registerFileExplorerListener(this);
-
             getSupportFragmentManager().beginTransaction().add(R.id.container_for_fragment,
                     explorerFragment).addToBackStack(null).commit();
         }
@@ -50,7 +43,6 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
     @Override
     protected void onStart() {
         super.onStart();
-        updateToolbar();
     }
     @Override
     protected void onResume() {
@@ -59,47 +51,30 @@ public class FileExplorerActivity extends AppCompatActivity implements FileEvent
             checkFileReadingPermission();
         }
     }
-    public void updateToolbar(){
+    public void setToolbarTitle(String title){
         toolbar.setTitleTextColor(getResources().getColor(R.color.background));
-        String toolbarTitle = explorerFragment.getToolbarTitle();
-        getSupportActionBar().setTitle(explorerFragment.getToolbarTitle());
+        getSupportActionBar().setTitle(title);
 
-        if (!toolbarTitle.equalsIgnoreCase(getResources().getString(R.string.choose_dir)))
+        if (!title.equalsIgnoreCase(getResources().getString(R.string.choose_dir)))
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         else
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
-    @Override
+    /*@Override
     public void onFileEvent(@Nullable File file) {
         if (file == null) {
-            updateToolbar();
+            setToolbarTitle();
         } else {
             if (file.isDirectory())
-                updateToolbar();
+                setToolbarTitle();
             else
                 showConfirmDialog(file);
         }
-    }
-
-    @Override
-    public void onLongFileEvent(File file, int eventCode) {
-
-    }
-
-    public void showConfirmDialog(File file){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
-
-    }
+    }*/
 
     @Override
     public void onBackPressed() {
-
-        if (explorerFragment != null){
-
-            explorerFragment.onBackPressed();
-        }
+        explorerFragment.onBackPressed();
     }
     private void checkFileReadingPermission() {
         if (ContextCompat.checkSelfPermission(this, READ_WRITE_EXT_STORAGE_PERMISSION)

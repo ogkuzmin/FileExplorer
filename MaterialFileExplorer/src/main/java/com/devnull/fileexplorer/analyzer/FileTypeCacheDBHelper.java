@@ -16,9 +16,13 @@ class FileTypeCacheDBHelper extends SQLiteOpenHelper {
         public static final String TABLE_NAME = "file_type_cache";
         public static final String COLUMN_FILE_PATH = "file_path";
         public static final String COLUMN_PARENT_DIR = "parent_dir";
-        public static final String COLUMN_IS_FILE = "is_file";
+        public static final String COLUMN_IS_FILE = "is_file"; // 0 - dir, 1 - file
         public static final String COLUMN_MIME_TYPE = "mime_type";
+        public static final String COLUMN_FILE_SIZE = "file_size";
         public static final String COLUMN_LAST_MODIFIED = "last_modified";
+
+        public static final String COLUMN_NULL_VALUE = "NULL";
+        public static final int COLUMN_IS_FILE_TRUE_VALUE = 1;
     }
 
     private static final String DATABASE_NAME = "filetypecache.db";
@@ -48,7 +52,8 @@ class FileTypeCacheDBHelper extends SQLiteOpenHelper {
                 FileTypeCacheEntry.COLUMN_PARENT_DIR    + TEXT_TYPE     + COMMA_SEP +
                 FileTypeCacheEntry.COLUMN_IS_FILE       + INT_TYPE      + COMMA_SEP +
                 FileTypeCacheEntry.COLUMN_MIME_TYPE     + TEXT_TYPE     + COMMA_SEP +
-                FileTypeCacheEntry.COLUMN_LAST_MODIFIED + TEXT_TYPE     + ")";
+                FileTypeCacheEntry.COLUMN_FILE_SIZE     + TEXT_TYPE     + COMMA_SEP +
+                FileTypeCacheEntry.COLUMN_LAST_MODIFIED + INT_TYPE      + ")";
 
         return createTable;
     }

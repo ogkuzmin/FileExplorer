@@ -7,6 +7,8 @@ import android.os.Message;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 
 /**
  * Created by devnull on 05.11.16.

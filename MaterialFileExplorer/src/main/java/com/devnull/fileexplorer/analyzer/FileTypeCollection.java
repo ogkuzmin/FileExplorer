@@ -1,5 +1,7 @@
 package com.devnull.fileexplorer.analyzer;
 
+import android.support.annotation.NonNull;
+
 import com.j256.simplemagic.ContentType;
 
 /**
@@ -26,15 +28,14 @@ public class FileTypeCollection {
     }
 
     /**
-     * Maps the type of file to {@link CommonType}.
+     * Maps the mime type of file to {@link CommonType}.
      *
-     * @param type Instance of {@link ContentType}.
-     * @return
+     * @param mimeType MimeType of file.
+     * @return int that should be equal one of constants from CommonType.
      */
-    public static int getCommonTypeFromContentType(ContentType type) {
+    public static int getCommonTypeFromMimeType(String mimeType) {
         int result;
 
-        String mimeType = type.getMimeType();
         if (mimeType.contains("image/")) {
             result = CommonType.IMAGE;
         } else if (mimeType.contains("audio/")) {
@@ -63,7 +64,15 @@ public class FileTypeCollection {
 
         return result;
     }
-
+    /**
+     * Matches a {@link ContentType} instance to an instance of {@link CommonType}.
+     *
+     * @param type that should be matched.
+     * @return one field from class {@link CommonType}.
+     */
+    public static int getCommonTypeFromContentType(@NonNull ContentType type) {
+        return getCommonTypeFromMimeType(type.getMimeType());
+    }
     private static boolean isOfficeDoc(String mimeType) {
         return (mimeType.contains("application/") && (mimeType.contains("msword") ||
                 mimeType.contains("openxmlformats-officedocument.wordprocessingml.document") ||

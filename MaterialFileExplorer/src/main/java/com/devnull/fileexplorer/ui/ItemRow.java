@@ -6,11 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -18,9 +15,6 @@ import android.widget.TextView;
 
 import com.devnull.fileexplorer.CommonUtils;
 import com.devnull.fileexplorer.R;
-import com.devnull.fileexplorer.analyzer.FileTypeCollection.CommonType;
-
-import java.io.File;
 
 /**
  * Created by devnull on 29.03.2016.
@@ -34,25 +28,18 @@ public class ItemRow extends RelativeLayout {
     private TextView        title;
     private TextView        subTitle;
 
-    private RowData itemData;
+    private FileRowModel itemData;
 
     private boolean isInitialized = false;
 
-    /**
-     * The interface that describes callback on item click event.
-     */
-    public interface OnItemRowClickListener {
-
-        public void onItemRowClick(@Nullable File file);
-    }
     public ItemRow(Context context) {
         super(context);
     }
     public ItemRow(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-    public void setRowDataAndInitUi(RowData rowData) {
-        itemData = rowData;
+    public void setRowDataAndInitUi(FileRowModel fileRowModel) {
+        itemData = fileRowModel;
         if (!isInitialized) {
             initUiComponents();
         } else {
@@ -60,7 +47,7 @@ public class ItemRow extends RelativeLayout {
         }
         setUpViews();
     }
-    public RowData getItemData() {
+    public FileRowModel getItemData() {
         return itemData;
     }
     private void initUiComponents() {
@@ -80,7 +67,6 @@ public class ItemRow extends RelativeLayout {
         subTitle.setTextColor(getResources().getColor(R.color.text_color_secondary));
     }
     private void setUpViews() {
-        container.setOnClickListener(itemData);
 
         String titleText;
 
@@ -91,7 +77,7 @@ public class ItemRow extends RelativeLayout {
 
         switch (itemData.getItemCode()) {
 
-            case RowData.DIRECTORY_CODE: {
+            case FileRowModel.DIRECTORY_CODE: {
                 if (!itemData.isParentDir()) {
                     titleText = itemData.getItemFile().getName();
                     title.setText(titleText);
@@ -101,13 +87,13 @@ public class ItemRow extends RelativeLayout {
                         subTitle.setTextColor(getResources().getColor(R.color.no_active_item));
                     }
                 }
-                subTitle.setText(RowData.DIRECTORY_STRING_CODE);
+                subTitle.setText(FileRowModel.DIRECTORY_STRING_CODE);
             }
             break;
 
-            case RowData.FILE_CODE: {
+            case FileRowModel.FILE_CODE: {
 
-                Log.d(TAG, "setUpViews(). case RowData.FILE_CODE");
+                Log.d(TAG, "setUpViews(). case FileRowModel.FILE_CODE");
 
                 title.setText(itemData.getItemFile().getName());
                 long lastModified = CommonUtils.getRealLastModified(itemData.getItemFile());
@@ -117,22 +103,22 @@ public class ItemRow extends RelativeLayout {
                             + " " + CommonUtils.getStringTimeFromLong(itemData.getItemFile().lastModified());
                 subTitle.setText(subTitleText);
 
-                Log.d(TAG, "setUpViews(). case RowData.FILE_CODE\n" + "file is " + itemData.getItemFile().getName() + "\n" +
+                Log.d(TAG, "setUpViews(). case FileRowModel.FILE_CODE\n" + "file is " + itemData.getItemFile().getName() + "\n" +
                         "last modified " + CommonUtils.getStringTimeFromLong(itemData.getItemFile().lastModified()) + "\n" +
                         "size is " + CommonUtils.getStringSizeFileFromLong(itemData.getItemFile().length()));
             }
             break;
 
-            case RowData.ROOT_DIRECTORY_CODE: {
+            case FileRowModel.ROOT_DIRECTORY_CODE: {
                 if(!itemData.isParentDir())
                 title.setText("/");
-                subTitle.setText(RowData.ROOT_DIRECTORY_STRING_CODE);
+                subTitle.setText(FileRowModel.ROOT_DIRECTORY_STRING_CODE);
             }
             break;
 
-            case RowData.EXTERNAL_STORAGE_CODE: {
+            case FileRowModel.EXTERNAL_STORAGE_CODE: {
                 if (!itemData.isParentDir())
-                title.setText(RowData.EXTERNAL_STORAGE_STRING_CODE);
+                title.setText(FileRowModel.EXTERNAL_STORAGE_STRING_CODE);
                 subTitle.setVisibility(INVISIBLE);
             }
             break;
@@ -141,36 +127,36 @@ public class ItemRow extends RelativeLayout {
 
         int iconResId = getIconResourceId();
 
-        if (iconResId != RowData.NO_SUCH_ICON && iconResId != RowData.FILE_CODE) {
+        if (iconResId != FileRowModel.NO_SUCH_ICON && iconResId != FileRowModel.FILE_CODE) {
             icon.setImageResource(iconResId);
             icon.setImageAlpha(getResources().getInteger(R.integer.standard_icon_alpha));
             icon.setColorFilter(new ColorDrawable(getResources().getColor(R.color.toolbar)).getColor());
-        } else if (iconResId == RowData.FILE_CODE) {
+        } else if (iconResId == FileRowModel.FILE_CODE) {
             String extension = CommonUtils.getFileExtension(itemData.getItemFile());
             icon.setImageBitmap(generateIconBitmap(extension));
         }
     }
     private int getIconResourceId() {
 
-        int resId = RowData.NO_SUCH_ICON;
+        int resId = FileRowModel.NO_SUCH_ICON;
 
         if(itemData.isParentDir())
             return R.drawable.ic_folder_black_48dp;
 
         switch (itemData.getItemCode()) {
-            case RowData.FILE_CODE:
-                resId = RowData.FILE_CODE;
+            case FileRowModel.FILE_CODE:
+                resId = FileRowModel.FILE_CODE;
                 break;
 
-            case RowData.DIRECTORY_CODE:
+            case FileRowModel.DIRECTORY_CODE:
                 resId = R.drawable.ic_folder_black_48dp;
                 break;
 
-            case RowData.EXTERNAL_STORAGE_CODE:
+            case FileRowModel.EXTERNAL_STORAGE_CODE:
                 resId = R.drawable.ic_sd_storage_black_48dp;
                 break;
 
-            case RowData.ROOT_DIRECTORY_CODE:
+            case FileRowModel.ROOT_DIRECTORY_CODE:
                 resId = R.drawable.ic_folder_black_48dp;
                 break;
         }

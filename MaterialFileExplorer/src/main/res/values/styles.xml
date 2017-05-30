@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/background</item>
         <item name="colorPrimaryDark">@color/toolbar</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/background</item>
     </style>
 
 </resources>

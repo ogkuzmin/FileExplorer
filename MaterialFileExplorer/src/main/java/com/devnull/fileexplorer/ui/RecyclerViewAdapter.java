@@ -8,17 +8,22 @@ import android.view.ViewGroup;
 import com.devnull.fileexplorer.R;
 
 import java.io.File;
-
-/**
- * Created by devnull on 26.11.16.
- */
+import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private RowDataListController mRowController;
+    private List<FileRowModel> mFileRowModelList;
+    private View.OnClickListener mOnClickListener;
 
-    public RecyclerViewAdapter(RowDataListController controller) {
-        mRowController = controller;
+    public RecyclerViewAdapter() {
+    }
+
+    public void setOnClickListener(View.OnClickListener listener) {
+        mOnClickListener = listener;
+    }
+
+    public void setDataList(List<FileRowModel> fileRowModels) {
+        mFileRowModelList = fileRowModels;
     }
 
     @Override
@@ -32,19 +37,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        RowData previousData = holder.itemRow.getItemData();
-        RowData actualData = mRowController.getRowDataList().get(position);
+        FileRowModel previousData = holder.itemRow.getItemData();
+        FileRowModel actualData = mFileRowModelList.get(position);
 
         if (holder.itemRow.getItemData() == null ||
                 !(previousData.getItemFile().equals(actualData.getItemFile()))) {
-            RowData rowData = mRowController.getRowDataList().get(position);
-            holder.itemRow.setRowDataAndInitUi(rowData);
-            processFileAnalyze(rowData.getItemFile());
+            FileRowModel fileRowModel = mFileRowModelList.get(position);
+            holder.itemRow.setRowDataAndInitUi(fileRowModel);
+            holder.itemRow.setOnClickListener(mOnClickListener);
+            processFileAnalyze(fileRowModel.getItemFile());
         }
     }
     @Override
     public int getItemCount() {
-        return mRowController.getRowDataList().size();
+        return mFileRowModelList.size();
     }
     private void processFileAnalyze(File file) {
 

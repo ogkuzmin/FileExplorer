@@ -1,14 +1,11 @@
 package com.devnull.fileexplorer.ui;
 
-import android.app.Activity;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
-import com.devnull.fileexplorer.CommonUtils;
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.analyzer.FileTypeCollection.CommonType;
-import com.devnull.fileexplorer.interfaces.OnBackPressedListener;
 
 import java.io.File;
 
@@ -16,9 +13,9 @@ import java.io.File;
  * Created by devnull on 27.11.16.
  */
 
-public class RowData implements View.OnClickListener {
+public class FileRowModel {
 
-    private static final String TAG = RowData.class.getSimpleName();
+    private static final String TAG = FileRowModel.class.getSimpleName();
 
     public static final int EXTERNAL_STORAGE_CODE = 4;
     public static final int EXTERNAL_STORAGE_STRING_CODE = R.string.ext_storage;
@@ -36,8 +33,6 @@ public class RowData implements View.OnClickListener {
 
     private File        itemFile;
     private CommonType  fileType;
-    private ItemRow.OnItemRowClickListener headListener;
-    private OnBackPressedListener onBackPressedListener;
 
 
     private int         itemCode;
@@ -45,7 +40,7 @@ public class RowData implements View.OnClickListener {
     private boolean     isDir;
     private boolean     isReadable;
 
-    public RowData() {}
+    public FileRowModel() {}
 
     public void setItemFile(File file) {
         itemFile = file;
@@ -80,13 +75,6 @@ public class RowData implements View.OnClickListener {
     public boolean isReadable() {
         return isReadable;
     }
-
-    public void registerHeadListener(ItemRow.OnItemRowClickListener listener) {
-        headListener = listener;
-    }
-    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener){
-        this.onBackPressedListener = onBackPressedListener;
-    }
     private void determineItemCode() {
 
         isDir = itemFile.isDirectory();
@@ -106,28 +94,13 @@ public class RowData implements View.OnClickListener {
 
         Log.i(TAG, "determineItemCode(): itemCode = " + itemCode);
     }
-    @Override
-    public void onClick(View v) {
-        if (isParentDir()) {
-            onBackPressedListener.onBackPressed();
-            return;
-        }
 
-        switch (itemCode) {
-            case ROOT_DIRECTORY_CODE:
-                headListener.onItemRowClick(new File("/"));
-                break;
-            case EXTERNAL_STORAGE_CODE:
-                if(CommonUtils.isExtStorageReadable())
-                    headListener.onItemRowClick(Environment.getExternalStorageDirectory());
-                break;
-            case DIRECTORY_CODE:
-                if (isReadable())
-                    headListener.onItemRowClick(itemFile);
-                break;
-            case FILE_CODE:
-                headListener.onItemRowClick(itemFile);
-                break;
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (o != null && o instanceof FileRowModel)
+            return this.itemFile.getAbsolutePath().equals(
+                    ((FileRowModel) o).itemFile.getAbsolutePath());
+        else
+            return false;
     }
 }

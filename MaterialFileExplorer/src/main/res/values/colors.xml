@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorAccent">#9f3f3f</color>
+    <color name="colorAccent">#67daff</color>
     <color name="pressed_item_color">#B3E5FC</color>
     <color name="textColor">#263238</color>
     <color name="text_color_secondary">#455A64</color>
