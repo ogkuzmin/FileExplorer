@@ -50,7 +50,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
     @Override
     public int getItemCount() {
-        return mFileRowModelList.size();
+        if (mFileRowModelList != null) {
+            return mFileRowModelList.size();
+        } else {
+            return 0;
+        }
     }
     private void processFileAnalyze(File file) {
 

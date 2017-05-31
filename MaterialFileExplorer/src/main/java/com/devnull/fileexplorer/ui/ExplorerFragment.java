@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,7 @@ import java.util.List;
  * Created by devnull on 25.03.2016.
  */
 
-public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplorerPresenter> {
+public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplorerPresenter> implements IFileExplorerView {
 
     private static final String LOG_TAG = ExplorerFragment.class.getSimpleName();
 
@@ -42,12 +43,14 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
     public ExplorerFragment()
     {
         super();
+        Log.d(LOG_TAG, "create instance");
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mFileExplorerActivityReference = new WeakReference<FileExplorerActivity>((FileExplorerActivity) getActivity());
+        Log.d(LOG_TAG, "::onAttach()");
     }
 
     @Override
@@ -55,6 +58,7 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
         super.onDetach();
         mFileExplorerActivityReference.clear();
         mFileExplorerActivityReference = null;
+        Log.d(LOG_TAG, "::onDetach()");
     }
 
     @Nullable
@@ -62,7 +66,10 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         rootView = (RelativeLayout) inflater.inflate(R.layout.explorer_fragment_layout, container, false);
+
+        Log.d(LOG_TAG, "::onCreateView()");
 
         return rootView;
     }
@@ -82,30 +89,37 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
         mAdapter.setOnClickListener(mItemClickListener);
         mRecyclerView.setLayoutManager(llm);
         mRecyclerView.setAdapter(mAdapter);
+
+        presenter.loadData();
+
+        Log.d(LOG_TAG, "::onViewCreated()");
     }
     public IFileExplorerPresenter createPresenter() {
         return new FileExplorerPresenter();
     }
+    @Override
     public void showFileRowsList(List<FileRowModel> rows) {
+        Log.d(LOG_TAG, "::showFileRowsList() with list size " + rows.size());
         mLoadingProgressBar.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
         mAdapter.setDataList(rows);
         mAdapter.notifyDataSetChanged();
     }
+    @Override
     public void showTitle(String title) {
+        Log.d(LOG_TAG, "::showTitle() with title " + title);
         if (mFileExplorerActivityReference != null && mFileExplorerActivityReference.get() != null) {
             mFileExplorerActivityReference.get().setToolbarTitle(title);
         }
     }
+    @Override
     public void showLoading() {
         mLoadingProgressBar.setVisibility(View.VISIBLE);
         mRecyclerView.setVisibility(View.GONE);
     }
+    @Override
     public void processRowEvent(FileRowModel row) {
         getPresenter().onRowEvent(row);
-    };
-    public View.OnClickListener getClickController() {
-        return mItemClickListener;
     }
     public void onBackPressed() {
         getPresenter().onBackPressed();

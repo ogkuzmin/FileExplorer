@@ -60,18 +60,6 @@ public class FileExplorerActivity extends AppCompatActivity {
         else
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
-    /*@Override
-    public void onFileEvent(@Nullable File file) {
-        if (file == null) {
-            setToolbarTitle();
-        } else {
-            if (file.isDirectory())
-                setToolbarTitle();
-            else
-                showConfirmDialog(file);
-        }
-    }*/
-
     @Override
     public void onBackPressed() {
         explorerFragment.onBackPressed();

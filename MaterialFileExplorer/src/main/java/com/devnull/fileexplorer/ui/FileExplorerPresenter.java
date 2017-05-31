@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.devnull.fileexplorer.CommonUtils;
 import com.devnull.fileexplorer.R;
@@ -124,8 +126,8 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
             filesList = getChildDirsAndFilesByParent(hostFile);
         }
 
-        Single<List<FileRowModel>> filesRowModelList = Single.just(mModelTransformer.transformFileList(filesList,
-                isFirstScreen, mViewReference.get().getClickController()))
+        Single<List<FileRowModel>> filesRowModelList = Single.just(
+                mModelTransformer.transformFileList(filesList, isFirstScreen))
                 .subscribeOn(Schedulers.io());
 
         return filesRowModelList;
@@ -133,6 +135,7 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
     }
     @UiThread
     private void postDataByView(List<FileRowModel> rows) {
+        Log.d(LOG_TAG, "postDataByView(): post list by size " + rows.size());
         if (isViewAttached()) {
             mViewReference.get().showFileRowsList(rows);
         }
@@ -170,7 +173,7 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
     private Single<String> getTitle() {
         final File hostFile = mFileModel.getHostFile();
         final String title;
-        final Context context = (Context) mViewReference.get();
+        final Context context = ((Fragment) mViewReference.get()).getContext();
 
         if (hostFile == null) {
             title = context.getResources().getString(CHOOSE_DIR_STRING_CODE);
@@ -182,6 +185,9 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
         } else {
             title = hostFile.getName();
         }
+
+        Log.d(LOG_TAG, "getTitle(): return title " + title);
+
         return Single.just(title);
     }
     public void onBackPressed() {

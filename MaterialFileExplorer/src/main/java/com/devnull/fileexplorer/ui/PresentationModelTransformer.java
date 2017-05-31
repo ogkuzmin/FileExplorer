@@ -20,8 +20,7 @@ public class PresentationModelTransformer {
     }
 
     @WorkerThread
-    public List<FileRowModel> transformFileList(List<File> files, boolean isFirstScreen,
-                                                View.OnClickListener clickListener) {
+    public List<FileRowModel> transformFileList(List<File> files, boolean isFirstScreen) {
         List<FileRowModel> rowModels = new ArrayList<FileRowModel>();
 
         boolean isParent;
