@@ -21,4 +21,6 @@ public interface IFileExplorerView extends MvpView {
 
     void processRowEvent(FileRowModel row);
 
+    void closeApp();
+
 }

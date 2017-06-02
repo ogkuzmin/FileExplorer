@@ -1,8 +1,10 @@
 package com.devnull.fileexplorer.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -114,20 +116,33 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
     }
     @Override
     public void showLoading() {
+        Log.d(LOG_TAG, "::showLoading()");
         mLoadingProgressBar.setVisibility(View.VISIBLE);
         mRecyclerView.setVisibility(View.GONE);
     }
     @Override
     public void processRowEvent(FileRowModel row) {
+        Log.d(LOG_TAG, "::processRowEvent()");
         getPresenter().onRowEvent(row);
     }
     public void onBackPressed() {
         getPresenter().onBackPressed();
     }
 
+    @Override
+    public void closeApp() {
+        final AlertDialog.Builder closeDialog = new AlertDialog.Builder(getContext());
+        closeDialog.setCancelable(true);
+        closeDialog.setMessage(R.string.exit_app_question);
+        closeDialog.setNegativeButton(R.string.negative_button_for_close_dialog, (di) -> di.dismiss());
+
+        getActivity().finish();
+    }
+
     private class RowItemClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            Log.d(RowItemClickListener.class.getSimpleName(), "::onClick()");
             FileRowModel fileRowModel = ((ItemRow) v).getItemData();
             ExplorerFragment.this.processRowEvent(fileRowModel);
         }

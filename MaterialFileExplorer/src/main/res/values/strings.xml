@@ -13,4 +13,7 @@
     <string name="action_confirmation_title">Please, confirm your choice</string>
     <string name="action_confirmation_text">Are you sure that you want to </string>
     <string name="action_confirm">Confirm</string>
+    <string name="exit_app_question">Are sure that you want to exit?</string>
+    <string name="negative_button_for_close_dialog">Cancel</string>
+    <string name="positive_button_for_close_dialog">Exit</string>
 </resources>

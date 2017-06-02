@@ -53,22 +53,25 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
     @UiThread
     @Override
     public void loadData() {
+        Log.d(LOG_TAG, "::loadData()");
+
         if (isViewAttached()) {
             mViewReference.get().showLoading();
-            Single<String> title = getTitle()
-                    .subscribeOn(Schedulers.io())
+            getTitle().subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSuccess(string -> mViewReference.get().showTitle(string));
-        }
+                    .doOnSuccess(string -> mViewReference.get().showTitle(string))
+                    .subscribe();
 
-        Single<List<FileRowModel>> rows = loadFilesByModelAndConvertThem()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(rowList -> postDataByView(rowList));
+            loadFilesByModelAndConvertThem().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(rowList -> postDataByView(rowList));
+        }
     }
     @UiThread
     @Override
     public void onRowEvent(FileRowModel row) {
+        Log.d(LOG_TAG, "::onRowEvent() with row " + row.getItemFile().getAbsolutePath());
+
             if (row.isParentDir()) {
                 onBackPressed();
                 return;
@@ -126,11 +129,10 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
             filesList = getChildDirsAndFilesByParent(hostFile);
         }
 
-        Single<List<FileRowModel>> filesRowModelList = Single.just(
-                mModelTransformer.transformFileList(filesList, isFirstScreen))
-                .subscribeOn(Schedulers.io());
+        List<FileRowModel> filesRowModelList = mModelTransformer
+                .transformFileList(filesList, isFirstScreen);
 
-        return filesRowModelList;
+        return Single.just(filesRowModelList);
 
     }
     @UiThread
@@ -191,19 +193,23 @@ public class FileExplorerPresenter implements IFileExplorerPresenter {
         return Single.just(title);
     }
     public void onBackPressed() {
-        File currentDir = mFileModel.getHostFile();
-        if (currentDir != null) {
-            File newCurrentDir = null;
-            String curPath = currentDir.getAbsolutePath();
+        Log.d(LOG_TAG, "onBackPressed()");
+
+        File hostFile = mFileModel.getHostFile();
+        if (hostFile != null) {
+            File newHostFile = null;
+            String curPath = hostFile.getAbsolutePath();
 
             if (!(curPath.equalsIgnoreCase("/")
                     || curPath.equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath())
                     /*|| curPath.equalsIgnoreCase(getActivity().getFilesDir().getAbsolutePath())*/)) {
-                String parentPath = currentDir.getParent();
+                String parentPath = hostFile.getParent();
                 if (parentPath != null)
-                    newCurrentDir = new File(parentPath);
+                    newHostFile = new File(parentPath);
             }
-            updateFileModelAndLoadData(newCurrentDir);
+            updateFileModelAndLoadData(newHostFile);
+        } else {
+            mViewReference.get().closeApp();
         }
     }
     private void updateFileModelAndLoadData(File newHostFile) {

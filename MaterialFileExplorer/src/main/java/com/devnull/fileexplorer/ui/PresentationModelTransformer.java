@@ -1,6 +1,7 @@
 package com.devnull.fileexplorer.ui;
 
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
@@ -12,6 +13,8 @@ import java.util.List;
  */
 
 public class PresentationModelTransformer {
+
+    private static final String LOG_TAG = PresentationModelTransformer.class.getSimpleName();
 
     private static final int PARENT_INDEX = 0;
 
@@ -31,7 +34,10 @@ public class PresentationModelTransformer {
                 isParent = true;
             }
             FileRowModel rowModel = createRowData(files.get(i), isParent);
+            rowModels.add(rowModel);
         }
+
+        Log.d(LOG_TAG, "::transformFileList() returns list of row models by size " + rowModels.size());
 
         return rowModels;
     }
