@@ -134,10 +134,11 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
         final AlertDialog.Builder closeDialog = new AlertDialog.Builder(getContext());
         closeDialog.setCancelable(true);
         closeDialog.setMessage(R.string.exit_app_question);
-        closeDialog.setNegativeButton(R.string.negative_button_for_close_dialog, (di) -> di.dismiss());
-
-        getActivity().finish();
+        closeDialog.setNegativeButton(R.string.negative_button_for_close_dialog, (di, which) -> di.dismiss());
+        closeDialog.setPositiveButton(R.string.positive_button_for_close_dialog, (di, which) -> getActivity().finish());
+        closeDialog.show();
     }
+
 
     private class RowItemClickListener implements View.OnClickListener {
         @Override

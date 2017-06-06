@@ -12,15 +12,12 @@ import javax.inject.Inject;
 
 public class FileAnalyzerHelper implements FileAnalyzerController {
 
-    private Handler mAnalyzeHandler;
 
-    @Inject
-    public FileAnalyzerHelper() {
-        mAnalyzeHandler = FileAnalyzerHandler.getInstance();
-    }
+
+    public FileAnalyzerHelper() {}
 
     @Override
     public void startAsyncQueryToAnalyzeFile(String filePath) {
-        mAnalyzeHandler.obtainMessage(FileAnalyzerHandler.ANALYZE_FILE, filePath);
+
     }
 }
