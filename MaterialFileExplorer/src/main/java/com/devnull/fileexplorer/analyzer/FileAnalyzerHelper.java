@@ -3,6 +3,7 @@ package com.devnull.fileexplorer.analyzer;
 import android.os.Handler;
 
 import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
+import com.devnull.fileexplorer.ui.FileRowModel;
 
 import javax.inject.Inject;
 
@@ -17,7 +18,7 @@ public class FileAnalyzerHelper implements FileAnalyzerController {
     public FileAnalyzerHelper() {}
 
     @Override
-    public void startAsyncQueryToAnalyzeFile(String filePath) {
+    public void startAsyncQueryToAnalyzeFile(FileRowModel fileRowModel) {
 
     }
 }

@@ -6,16 +6,27 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.devnull.fileexplorer.R;
+import com.devnull.fileexplorer.di.DaggerFileAnalyzerComponent;
+import com.devnull.fileexplorer.di.FileAnalyzerComponent;
+import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
 
-import java.io.File;
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+import javax.inject.Inject;
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+
+    @Inject
+    FileAnalyzerController mFileAnalyzerController;
+
+    private FileAnalyzerComponent mFileAnalyzerComponent;
 
     private List<FileRowModel> mFileRowModelList;
     private View.OnClickListener mOnClickListener;
 
     public RecyclerViewAdapter() {
+        mFileAnalyzerComponent = DaggerFileAnalyzerComponent.builder().build();
+        mFileAnalyzerComponent.inject(this);
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
@@ -45,7 +56,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             FileRowModel fileRowModel = mFileRowModelList.get(position);
             holder.itemRow.setRowDataAndInitUi(fileRowModel);
             holder.itemRow.setOnClickListener(mOnClickListener);
-            processFileAnalyze(fileRowModel.getItemFile());
+            processFileAnalyze(fileRowModel);
         }
     }
     @Override
@@ -56,8 +67,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             return 0;
         }
     }
-    private void processFileAnalyze(File file) {
-
+    private void processFileAnalyze(FileRowModel rowModel) {
+        mFileAnalyzerController.startAsyncQueryToAnalyzeFile(rowModel);
     }
     static class ViewHolder extends RecyclerView.ViewHolder {
 
