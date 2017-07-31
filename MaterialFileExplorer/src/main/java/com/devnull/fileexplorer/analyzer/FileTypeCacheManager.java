@@ -1,16 +1,13 @@
 package com.devnull.fileexplorer.analyzer;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 
-/**
- * Created by devnull on 19.11.16.
- */
+import com.devnull.fileexplorer.interfaces.FileTypeCacheRepo;
+
+import javax.inject.Inject;
+
 public class FileTypeCacheManager {
 
-
-    private FileTypeCacheDBHelper dbHelper;
+    @Inject
+    private FileTypeCacheRepo mCacheRepo;
 
 }
