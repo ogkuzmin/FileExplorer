@@ -1,7 +1,6 @@
 package com.devnull.fileexplorer.ui;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.devnull.fileexplorer.analyzer.FileAnalyzerHelper;
-import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
+import com.devnull.fileexplorer.interfaces.IFileAnalyzerController;
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.interfaces.IFileExplorerPresenter;
 import com.devnull.fileexplorer.interfaces.IFileExplorerView;
@@ -23,6 +22,8 @@ import com.hannesdorfmann.mosby3.mvp.MvpFragment;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Created by devnull on 25.03.2016.
@@ -38,9 +39,7 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
     private RecyclerViewAdapter     mAdapter;
     private ProgressBar             mLoadingProgressBar;
 
-    private FileAnalyzerController  mFileAnalyzerController;
     private RowItemClickListener mItemClickListener = new RowItemClickListener();
-
 
     public ExplorerFragment()
     {
@@ -79,10 +78,6 @@ public class ExplorerFragment extends MvpFragment<IFileExplorerView, IFileExplor
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (mFileAnalyzerController == null) {
-            mFileAnalyzerController = new FileAnalyzerHelper();
-        }
 
         mLoadingProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_progress_bar);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.container_for_content);

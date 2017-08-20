@@ -4,9 +4,15 @@ import android.support.annotation.WorkerThread;
 import android.util.Log;
 import android.view.View;
 
+import com.devnull.fileexplorer.di.DaggerFileTypeCacheRepoComponent;
+import com.devnull.fileexplorer.di.FileTypeCacheRepoComponent;
+import com.devnull.fileexplorer.interfaces.IFileTypeCacheRepo;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Created by oleg on 24.05.17.
@@ -18,8 +24,13 @@ public class PresentationModelTransformer {
 
     private static final int PARENT_INDEX = 0;
 
-    public PresentationModelTransformer() {
+    @Inject
+    IFileTypeCacheRepo mCacheRepo;
 
+    public PresentationModelTransformer() {
+        FileTypeCacheRepoComponent repoComponent = DaggerFileTypeCacheRepoComponent.
+                builder().build();
+        repoComponent.inject(this);
     }
 
     @WorkerThread

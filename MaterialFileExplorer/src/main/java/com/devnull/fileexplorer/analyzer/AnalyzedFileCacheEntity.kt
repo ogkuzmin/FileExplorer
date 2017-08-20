@@ -16,10 +16,10 @@ import io.realm.annotations.Required
  * Created by oleg on 26.04.17.
  */
 
-internal class AnalyzedFileCacheEntity: RealmObject() {
+open class AnalyzedFileCacheEntity: RealmObject() {
 
     companion object {
-        private val LOG_TAG = AnalyzedFileCacheEntity.javaClass.simpleName
+        private val LOG_TAG = AnalyzedFileCacheEntity::class.java.simpleName
         val FILE_PATH_FIELD_NAME = "filePath"
         val PARENT_DIR_FIELD_NAME = "parentDir"
         val IS_FILE_FIELD_NAME = "isFile"
@@ -32,7 +32,6 @@ internal class AnalyzedFileCacheEntity: RealmObject() {
     @PrimaryKey
     var filePath: String? = null
     var parentDir: String? = null
-    @Required
     var isFile: Boolean = false
     var fileSize: Long = 0
     var mimeType: String? = null

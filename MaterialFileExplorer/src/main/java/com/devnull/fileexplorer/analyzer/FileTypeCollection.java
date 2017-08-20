@@ -13,18 +13,18 @@ public class FileTypeCollection {
      * These types are used to show icon of file.
      */
     public static class CommonType {
-        public static final int AUDIO = -1;
-        public static final int IMAGE = -2;
-        public static final int VIDEO = -3;
-        public static final int PDF = -4;
-        public static final int OFFICE_DOC = -5;
-        public static final int OFFICE_SPREADSHEETS = -6;
-        public static final int OFFICE_PRESENTATION = -7;
-        public static final int ARCHIVE = -8;
-        public static final int APK = -9;
-        public static final int TEXT = -10;
-        public static final int BINARY = -11;
-        public static final int OTHER = -12;
+        public static final int AUDIO = 1;
+        public static final int IMAGE = 2;
+        public static final int VIDEO = 3;
+        public static final int PDF = 4;
+        public static final int OFFICE_DOC = 5;
+        public static final int OFFICE_SPREADSHEETS = 6;
+        public static final int OFFICE_PRESENTATION = 7;
+        public static final int ARCHIVE = 8;
+        public static final int APK = 9;
+        public static final int TEXT = 10;
+        public static final int BINARY = 11;
+        public static final int OTHER = 12;
     }
 
     /**

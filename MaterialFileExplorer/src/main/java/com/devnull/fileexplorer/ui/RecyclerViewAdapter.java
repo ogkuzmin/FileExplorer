@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import com.devnull.fileexplorer.R;
 import com.devnull.fileexplorer.di.DaggerFileAnalyzerComponent;
 import com.devnull.fileexplorer.di.FileAnalyzerComponent;
-import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
+import com.devnull.fileexplorer.interfaces.IFileAnalyzerController;
 
 import java.util.List;
 
@@ -17,16 +17,15 @@ import javax.inject.Inject;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
 
     @Inject
-    FileAnalyzerController mFileAnalyzerController;
-
-    private FileAnalyzerComponent mFileAnalyzerComponent;
+    IFileAnalyzerController mFileAnalyzerController;
 
     private List<FileRowModel> mFileRowModelList;
     private View.OnClickListener mOnClickListener;
 
     public RecyclerViewAdapter() {
-        mFileAnalyzerComponent = DaggerFileAnalyzerComponent.builder().build();
-        mFileAnalyzerComponent.inject(this);
+        FileAnalyzerComponent fileAnalyzerComponent = DaggerFileAnalyzerComponent.
+                builder().build();
+        fileAnalyzerComponent.inject(this);
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
@@ -51,8 +50,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         FileRowModel previousData = holder.itemRow.getItemData();
         FileRowModel actualData = mFileRowModelList.get(position);
 
-        if (holder.itemRow.getItemData() == null ||
-                !(previousData.getItemFile().equals(actualData.getItemFile()))) {
+        if (previousData == null  || !(previousData.equals(actualData))) {
             FileRowModel fileRowModel = mFileRowModelList.get(position);
             holder.itemRow.setRowDataAndInitUi(fileRowModel);
             holder.itemRow.setOnClickListener(mOnClickListener);

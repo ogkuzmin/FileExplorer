@@ -1,13 +1,13 @@
 package com.devnull.fileexplorer.analyzer;
 
 
-import com.devnull.fileexplorer.interfaces.FileTypeCacheRepo;
+import com.devnull.fileexplorer.interfaces.IFileTypeCacheRepo;
 
 import javax.inject.Inject;
 
 public class FileTypeCacheManager {
 
     @Inject
-    private FileTypeCacheRepo mCacheRepo;
+    IFileTypeCacheRepo mCacheRepo;
 
 }

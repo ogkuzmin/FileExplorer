@@ -1,6 +1,6 @@
 package com.devnull.fileexplorer.di;
 
-import com.devnull.fileexplorer.interfaces.FileAnalyzerController;
+import com.devnull.fileexplorer.interfaces.IFileAnalyzerController;
 import com.devnull.fileexplorer.ui.RecyclerViewAdapter;
 
 import javax.inject.Singleton;
@@ -11,7 +11,7 @@ import dagger.Component;
 @Component(modules = {FileAnalyzerModule.class})
 public interface FileAnalyzerComponent {
 
-    FileAnalyzerController provideFileAnalyzerController();
+    IFileAnalyzerController provideFileAnalyzerController();
 
     void inject(RecyclerViewAdapter adapter);
 }

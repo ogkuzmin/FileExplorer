@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
@@ -33,10 +34,11 @@ dependencies {
     compile 'com.j256.simplemagic:simplemagic:+'
     compile 'com.android.support:appcompat-v7:25.+'
     compile 'com.android.support:recyclerview-v7:25.+'
-    compile 'com.google.dagger:dagger:2.+'
     compile 'com.hannesdorfmann.mosby3:mvp:3.+'
     compile "io.reactivex.rxjava2:rxjava:2.+"
     compile 'io.reactivex.rxjava2:rxandroid:2.+'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.+'
+    compile "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
 }
